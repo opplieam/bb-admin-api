@@ -21,6 +21,9 @@
 go.work
 go.work.sum
 
+# Go Binary
+bin
+
 # IDE
 .idea
 
