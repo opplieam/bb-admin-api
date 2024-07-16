@@ -8,3 +8,17 @@ dev-up:
 
 dev-down:
 	minikube delete
+
+
+BASE_IMAGE_NAME := opplieam
+SERVICE_NAME    := bb-admin-api
+#VERSION         := "0.0.1-$(shell git rev-parse --short HEAD)"
+VERSION         := "local-dev"
+SERVICE_IMAGE   := $(BASE_IMAGE_NAME)/$(SERVICE_NAME):$(VERSION)
+
+docker-build:
+	docker build \
+		-t $(SERVICE_IMAGE) \
+    	--build-arg BUILD_REF=$(VERSION) \
+    	--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+    	.
