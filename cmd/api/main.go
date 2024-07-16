@@ -8,9 +8,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var build = "dev"
+
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	logger = logger.With("service", "bb-admin-api")
+	logger = logger.With("service", "bb-admin-api", "build", build)
 
 	if err := run(logger); err != nil {
 		logger.Error("failed to start server", "error", err)
