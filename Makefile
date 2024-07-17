@@ -28,7 +28,7 @@ docker-build-dev:
     	--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
     	.
 
-docker-build:
+docker-build-prod:
 	docker build \
 		-t $(SERVICE_IMAGE) \
     	--build-arg BUILD_REF=$(VERSION) \

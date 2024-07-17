@@ -27,3 +27,5 @@ bin
 # IDE
 .idea
 
+# Env
+.env
