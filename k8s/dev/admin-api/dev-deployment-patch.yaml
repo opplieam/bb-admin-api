@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-api-deployment
+  namespace: buy-better
+
+spec:
+  replicas: 1
+
+  template:
+    spec:
+      containers:
+        - name: admin-api
+          imagePullPolicy: Never
+          resources:
+            requests:
+              cpu: "500m"
+            limits:
+              cpu: "500m"
+
+

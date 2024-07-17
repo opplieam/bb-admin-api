@@ -4,7 +4,6 @@ SHELL = $(if $(wildcard $(SHELL_PATH)),/bin/ash,/bin/bash)
 
 dev-up:
 	minikube start
-	eval $(minikube docker-env)
 
 dev-down:
 	minikube delete
@@ -17,8 +16,12 @@ VERSION_DEV         := "local-dev"
 SERVICE_IMAGE   	:= $(BASE_IMAGE_NAME)/$(SERVICE_NAME):$(VERSION)
 SERVICE_IMAGE_DEV   := $(BASE_IMAGE_NAME)/$(SERVICE_NAME):$(VERSION_DEV)
 
+DEPLOYMENT_NAME		:= admin-api-deployment
+NAMESPACE			:= buy-better
+
 
 docker-build-dev:
+	@eval $$(minikube docker-env);\
 	docker build \
 		-t $(SERVICE_IMAGE_DEV) \
     	--build-arg BUILD_REF=$(VERSION_DEV) \
@@ -31,3 +34,14 @@ docker-build:
     	--build-arg BUILD_REF=$(VERSION) \
     	--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
     	.
+
+dev-restart:
+	kubectl rollout restart deployment $(DEPLOYMENT_NAME) --namespace=$(NAMESPACE)
+
+kus-dev:
+	kubectl apply -k k8s/dev/admin-api
+
+kus-dev-down:
+	kubectl delete -k k8s/dev/admin-api
+
+dev-apply: docker-build-dev kus-dev dev-restart

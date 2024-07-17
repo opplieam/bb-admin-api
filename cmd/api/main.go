@@ -41,7 +41,7 @@ func run(log *slog.Logger) error {
 		})
 	})
 
-	err := r.Run(":8080")
+	err := r.Run(":3000")
 	if err != nil {
 		return err
 	}
