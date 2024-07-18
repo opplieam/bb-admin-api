@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SLogger(logger *slog.Logger) gin.HandlerFunc {
+func SLogger(log *slog.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		startTime := time.Now()
 		path := c.Request.URL.Path
@@ -41,11 +41,15 @@ func SLogger(logger *slog.Logger) gin.HandlerFunc {
 		msg := "Incoming request"
 		if status >= http.StatusBadRequest && status < http.StatusInternalServerError {
 			level = slog.LevelWarn
-			msg = c.Errors.String()
+			msg = "client error"
 		} else if status >= http.StatusInternalServerError {
 			level = slog.LevelError
-			msg = c.Errors.String()
+			msg = "server error"
 		}
-		logger.LogAttrs(c.Request.Context(), level, msg, slogAttrs...)
+		if len(c.Errors) > 0 {
+			slogAttrs = append(slogAttrs, slog.Any("errors_stack", c.Errors))
+		}
+
+		log.LogAttrs(c.Request.Context(), level, msg, slogAttrs...)
 	}
 }

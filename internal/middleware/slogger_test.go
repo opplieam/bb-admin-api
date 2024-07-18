@@ -2,7 +2,9 @@ package middleware
 
 import (
 	"bytes"
+	"errors"
 	"log/slog"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -10,17 +12,17 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type TestSuite struct {
+type SLoggerTestSuite struct {
 	suite.Suite
 	engine *gin.Engine
 	buf    *bytes.Buffer
 }
 
 func TestSLogger(t *testing.T) {
-	suite.Run(t, new(TestSuite))
+	suite.Run(t, new(SLoggerTestSuite))
 }
 
-func (suite *TestSuite) SetupTest() {
+func (s *SLoggerTestSuite) SetupTest() {
 	buffer := new(bytes.Buffer)
 	var memLogger = slog.New(slog.NewJSONHandler(buffer, nil))
 
@@ -31,45 +33,64 @@ func (suite *TestSuite) SetupTest() {
 	r.Use(SLogger(memLogger))
 	r.Use(gin.Recovery())
 
-	r.GET("/valid", func(c *gin.Context) {})
-	r.GET("/forceError", func(c *gin.Context) { panic("forced panic") })
-
-	suite.engine = r
-	suite.buf = buffer
+	s.engine = r
+	s.buf = buffer
 }
 
-func (suite *TestSuite) TestValid() {
+func (s *SLoggerTestSuite) isContain(args ...string) {
+	for _, word := range args {
+		s.Assert().Contains(s.buf.String(), word)
+	}
+}
+
+func (s *SLoggerTestSuite) TestValid() {
+	s.engine.GET("/valid", func(c *gin.Context) {})
+
 	req := httptest.NewRequest("GET", "/valid?a=100", nil)
 	w := httptest.NewRecorder()
-	suite.engine.ServeHTTP(w, req)
+	s.engine.ServeHTTP(w, req)
 
-	suite.Assert().Contains(suite.buf.String(), "200")
-	suite.Assert().Contains(suite.buf.String(), "GET")
-	suite.Assert().Contains(suite.buf.String(), "/valid")
-	suite.Assert().Contains(suite.buf.String(), "a=100")
-
+	s.isContain("200", "GET", "/valid", "a=100")
 }
 
-func (suite *TestSuite) TestServerError() {
+func (s *SLoggerTestSuite) TestServerError() {
+	s.engine.GET("/forceError", func(c *gin.Context) { panic("forced panic") })
+
 	req := httptest.NewRequest("GET", "/forceError", nil)
 	w := httptest.NewRecorder()
-	suite.engine.ServeHTTP(w, req)
+	s.engine.ServeHTTP(w, req)
 
-	suite.Assert().Contains(suite.buf.String(), "500")
-	suite.Assert().Contains(suite.buf.String(), "GET")
-	suite.Assert().Contains(suite.buf.String(), "/forceError")
-	suite.Assert().Contains(suite.buf.String(), "ERROR")
-
+	s.isContain("500", "GET", "/forceError", "ERROR")
 }
 
-func (suite *TestSuite) TestClientError() {
+func (s *SLoggerTestSuite) TestClientError() {
 	req := httptest.NewRequest("GET", "/notfound", nil)
 	w := httptest.NewRecorder()
-	suite.engine.ServeHTTP(w, req)
+	s.engine.ServeHTTP(w, req)
 
-	suite.Assert().Contains(suite.buf.String(), "404")
-	suite.Assert().Contains(suite.buf.String(), "GET")
-	suite.Assert().Contains(suite.buf.String(), "/notfound")
-	suite.Assert().Contains(suite.buf.String(), "WARN")
+	s.isContain("404", "GET", "/notfound", "WARN")
+}
 
+func (s *SLoggerTestSuite) TestAbortClientError() {
+	s.engine.GET("/clientError", func(c *gin.Context) {
+		_ = c.AbortWithError(http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	})
+
+	req := httptest.NewRequest("GET", "/clientError", nil)
+	w := httptest.NewRecorder()
+	s.engine.ServeHTTP(w, req)
+
+	s.isContain("client error", "unauthorized", "WARN")
+}
+
+func (s *SLoggerTestSuite) TestAbortServerError() {
+	s.engine.GET("/serverError", func(c *gin.Context) {
+		_ = c.AbortWithError(http.StatusInternalServerError, errors.New("internal error"))
+	})
+	req := httptest.NewRequest("GET", "/serverError", nil)
+	w := httptest.NewRecorder()
+	s.engine.ServeHTTP(w, req)
+
+	s.isContain("server error", "internal error", "ERROR")
 }

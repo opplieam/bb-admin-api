@@ -20,7 +20,7 @@ func main() {
 	logger = logger.With("service", "bb-admin-api", "build", build)
 
 	if err := run(logger); err != nil {
-		logger.Error("start up", "error", err)
+		logger.Error("run server", "error", err)
 	}
 
 }
@@ -44,7 +44,7 @@ func run(log *slog.Logger) error {
 
 	serverErrors := make(chan error, 1)
 	go func() {
-		log.Info("startup", "status", "api router started", "address", srv.Addr)
+		log.Info("start up", "status", "api router started", "address", srv.Addr)
 		serverErrors <- srv.ListenAndServe()
 	}()
 
