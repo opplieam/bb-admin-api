@@ -94,7 +94,7 @@ func run(log *slog.Logger) error {
 
 func setupRoutes(log *slog.Logger) *gin.Engine {
 	var r *gin.Engine
-	if build == "dev" {
+	if utils.GetEnv("WEB_SERVICE_ENV", "dev") == "dev" {
 		r = gin.Default()
 	} else {
 		gin.SetMode(gin.ReleaseMode)

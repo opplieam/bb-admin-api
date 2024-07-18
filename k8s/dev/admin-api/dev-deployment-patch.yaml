@@ -12,6 +12,9 @@ spec:
       containers:
         - name: admin-api
           imagePullPolicy: Never
+          env:
+            - name: WEB_SERVICE_ENV
+              value: "cluster-dev"
           resources:
             requests:
               cpu: "500m"

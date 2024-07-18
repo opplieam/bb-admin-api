@@ -8,4 +8,4 @@ patches:
 images:
   - name: admin-api-image
     newName: opplieam/bb-admin-api
-    newTag: local-dev
+    newTag: cluster-dev
