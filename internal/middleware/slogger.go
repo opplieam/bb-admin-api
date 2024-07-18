@@ -3,12 +3,13 @@ package middleware
 import (
 	"log/slog"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SLogger(log *slog.Logger) gin.HandlerFunc {
+func SLogger(log *slog.Logger, skipPath []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		startTime := time.Now()
 		path := c.Request.URL.Path
@@ -49,7 +50,9 @@ func SLogger(log *slog.Logger) gin.HandlerFunc {
 		if len(c.Errors) > 0 {
 			slogAttrs = append(slogAttrs, slog.Any("errors_stack", c.Errors))
 		}
+		if !slices.Contains(skipPath, path) || status != http.StatusOK {
+			log.LogAttrs(c.Request.Context(), level, msg, slogAttrs...)
+		}
 
-		log.LogAttrs(c.Request.Context(), level, msg, slogAttrs...)
 	}
 }

@@ -1,14 +1,12 @@
 package main
 
 import (
-	"errors"
 	"log/slog"
-	"math/rand/v2"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/opplieam/bb-admin-api/internal/middleware"
 	"github.com/opplieam/bb-admin-api/internal/utils"
+	"github.com/opplieam/bb-admin-api/internal/v1/probe"
 )
 
 func setupRoutes(log *slog.Logger) *gin.Engine {
@@ -21,17 +19,11 @@ func setupRoutes(log *slog.Logger) *gin.Engine {
 	}
 
 	r.Use(gin.Recovery())
-	r.Use(middleware.SLogger(log))
+	r.Use(middleware.SLogger(log, []string{"/v1/liveness"}))
 
-	r.GET("/ping", func(c *gin.Context) {
-		num := rand.IntN(2)
-		if num == 0 {
-			_ = c.AbortWithError(http.StatusInternalServerError, errors.New("internal server error"))
-			return
-		}
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	v1 := r.Group("/v1")
+	healthCheck := probe.NewProbe(build)
+	v1.GET("/liveness", healthCheck.LivenessHandler)
+
 	return r
 }

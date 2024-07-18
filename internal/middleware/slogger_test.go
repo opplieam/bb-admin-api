@@ -30,7 +30,7 @@ func (s *SLoggerTestSuite) SetupTest() {
 
 	r := gin.New()
 
-	r.Use(SLogger(memLogger))
+	r.Use(SLogger(memLogger, []string{"/skipPath"}))
 	r.Use(gin.Recovery())
 
 	s.engine = r
@@ -93,4 +93,25 @@ func (s *SLoggerTestSuite) TestAbortServerError() {
 	s.engine.ServeHTTP(w, req)
 
 	s.isContain("server error", "internal error", "ERROR")
+}
+
+func (s *SLoggerTestSuite) TestSkipPath() {
+	s.engine.GET("/skipPath", func(c *gin.Context) {})
+	req := httptest.NewRequest("GET", "/serverError", nil)
+	w := httptest.NewRecorder()
+	s.engine.ServeHTTP(w, req)
+
+	s.Assert().NotContains(s.buf.String(), "INFO")
+}
+
+func (s *SLoggerTestSuite) TestSkipPathWithError() {
+	s.engine.GET("/skipPath", func(c *gin.Context) {
+		_ = c.AbortWithError(http.StatusInternalServerError, errors.New("intend error"))
+		return
+	})
+	req := httptest.NewRequest("GET", "/skipPath", nil)
+	w := httptest.NewRecorder()
+	s.engine.ServeHTTP(w, req)
+
+	s.isContain("intend error", "ERROR")
 }
