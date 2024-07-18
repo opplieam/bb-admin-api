@@ -10,10 +10,7 @@ import (
 	"runtime"
 	"syscall"
 
-	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/opplieam/bb-admin-api/internal/middleware"
-	"github.com/opplieam/bb-admin-api/internal/utils"
 )
 
 var build = "dev"
@@ -68,23 +65,4 @@ func run(log *slog.Logger) error {
 	}
 
 	return nil
-}
-
-func setupRoutes(log *slog.Logger) *gin.Engine {
-	var r *gin.Engine
-	if utils.GetEnv("WEB_SERVICE_ENV", "dev") == "dev" {
-		r = gin.Default()
-	} else {
-		gin.SetMode(gin.ReleaseMode)
-		r = gin.New()
-		r.Use(middleware.SLogger(log))
-		r.Use(gin.Recovery())
-	}
-
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	return r
 }
