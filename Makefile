@@ -8,6 +8,10 @@ dev-up:
 dev-down:
 	minikube delete
 
+dev-up-all: dev-db-up dev-up
+
+dev-down-all: dev-down dev-db-down
+
 
 BASE_IMAGE_NAME 	:= opplieam
 SERVICE_NAME    	:= bb-admin-api

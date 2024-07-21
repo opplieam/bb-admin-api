@@ -33,6 +33,16 @@ spec:
             successThreshold: 1
             failureThreshold: 4
 
+          readinessProbe:
+            httpGet:
+              path: /v1/readiness
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 4
+
           env:
             - name: GOMAXPROCS
               valueFrom:

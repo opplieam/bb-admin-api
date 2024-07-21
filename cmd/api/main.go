@@ -38,7 +38,7 @@ func run(log *slog.Logger) error {
 	defer db.Close()
 
 	// Setup routes
-	r := setupRoutes(log)
+	r := setupRoutes(log, db)
 
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
