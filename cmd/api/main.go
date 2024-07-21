@@ -11,6 +11,7 @@ import (
 	"syscall"
 
 	_ "github.com/joho/godotenv/autoload"
+	_ "github.com/lib/pq"
 )
 
 var build = "dev"
@@ -27,8 +28,16 @@ func main() {
 
 func run(log *slog.Logger) error {
 	log.Info("start up", "GOMAXPROCS", runtime.GOMAXPROCS(0))
+	// Setup config
 	cfg := NewConfig()
+	// Setup database
+	db, err := setupDB(cfg, log)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
 
+	// Setup routes
 	r := setupRoutes(log)
 
 	shutdown := make(chan os.Signal, 1)
