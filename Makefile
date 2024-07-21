@@ -38,11 +38,11 @@ docker-build-prod:
 dev-restart:
 	kubectl rollout restart deployment $(DEPLOYMENT_NAME) --namespace=$(NAMESPACE)
 
+dev-stop:
+	kubectl delete -k k8s/dev/admin-api
+
 kus-dev:
 	kubectl apply -k k8s/dev/admin-api
-
-kus-dev-down:
-	kubectl delete -k k8s/dev/admin-api
 
 dev-apply: docker-build-dev kus-dev dev-restart
 
