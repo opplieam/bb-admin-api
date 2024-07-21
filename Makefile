@@ -45,3 +45,11 @@ kus-dev-down:
 	kubectl delete -k k8s/dev/admin-api
 
 dev-apply: docker-build-dev kus-dev dev-restart
+
+# ------------------------------------------------------------
+# DB
+dev-db-up:
+	docker compose up -d
+
+dev-db-down:
+	docker compose down
