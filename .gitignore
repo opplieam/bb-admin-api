@@ -27,3 +27,6 @@ bin
 # IDE
 .idea
 
+# Env
+.env
+.postgres.env

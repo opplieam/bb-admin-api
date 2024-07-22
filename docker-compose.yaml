@@ -1,0 +1,8 @@
+services:
+  pg-dev-db:
+    image: postgres:16.2-alpine3.19
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./.postgres.env

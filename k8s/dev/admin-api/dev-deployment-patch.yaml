@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-api-deployment
+  namespace: buy-better
+
+spec:
+  replicas: 1
+
+  template:
+    spec:
+      containers:
+        - name: admin-api
+          imagePullPolicy: Never
+          env:
+            - name: WEB_SERVICE_ENV
+              value: "cluster-dev"
+            - name: DB_DSN # dev local db is not sensitive
+              value: "postgresql://postgres:admin1234@host.minikube.internal:5432/buy-better-admin?sslmode=disable"
+          resources:
+            requests:
+              cpu: "500m"
+            limits:
+              cpu: "500m"
+
+
