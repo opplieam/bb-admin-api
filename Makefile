@@ -4,12 +4,10 @@ SHELL = $(if $(wildcard $(SHELL_PATH)),/bin/ash,/bin/bash)
 
 dev-up:
 	minikube start
-
 dev-down:
 	minikube delete
 
 dev-up-all: dev-db-up dev-up
-
 dev-down-all: dev-down dev-db-down
 
 
@@ -22,6 +20,8 @@ SERVICE_IMAGE_DEV   := $(BASE_IMAGE_NAME)/$(SERVICE_NAME):$(VERSION_DEV)
 
 DEPLOYMENT_NAME		:= admin-api-deployment
 NAMESPACE			:= buy-better
+
+DB_DSN				:= "postgresql://postgres:admin1234@localhost:5432/buy-better-admin?sslmode=disable"
 
 
 docker-build-dev:
@@ -39,21 +39,37 @@ docker-build-prod:
     	--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
     	.
 
-dev-restart:
-	kubectl rollout restart deployment $(DEPLOYMENT_NAME) --namespace=$(NAMESPACE)
-
-dev-stop:
-	kubectl delete -k k8s/dev/admin-api
-
 kus-dev:
 	kubectl apply -k k8s/dev/admin-api
 
+dev-restart:
+	kubectl rollout restart deployment $(DEPLOYMENT_NAME) --namespace=$(NAMESPACE)
+dev-stop:
+	kubectl delete -k k8s/dev/admin-api
 dev-apply: docker-build-dev kus-dev dev-restart
 
 # ------------------------------------------------------------
 # DB
-dev-db-up:
+docker-compose-up:
 	docker compose up -d
-
-dev-db-down:
+docker-compose-down:
 	docker compose down
+
+migrate-up:
+	migrate -path=./migrations \
+	-database=$(DB_DSN) \
+	up
+
+migrate-down:
+	migrate -path=./migrations \
+    -database=$(DB_DSN) \
+    down
+
+dev-db-up: docker-compose-up sleep-3 migrate-up
+dev-db-down: docker-compose-down
+dev-db-reset: dev-db-down sleep-1 dev-db-up
+
+# ------------------------------------------------------------
+# Helper function
+sleep-%:
+	sleep $(@:sleep-%=%)
