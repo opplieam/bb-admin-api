@@ -22,7 +22,9 @@ DEPLOYMENT_NAME		:= admin-api-deployment
 NAMESPACE			:= buy-better
 
 DB_DSN				:= "postgresql://postgres:admin1234@localhost:5432/buy-better-admin?sslmode=disable"
-
+DB_NAME				:= "buy-better-admin"
+DB_USERNAME			:= "postgres"
+CONTAINER_NAME		:= "pg-dev-db"
 
 docker-build-dev:
 	@eval $$(minikube docker-env);\
@@ -65,9 +67,13 @@ migrate-down:
     -database=$(DB_DSN) \
     down
 
-dev-db-up: docker-compose-up sleep-3 migrate-up
+dev-db-seed:
+	cat ./data/seed.sql | docker exec -i $(CONTAINER_NAME) psql -U $(DB_USERNAME) -d $(DB_NAME)
+
+dev-db-up: docker-compose-up sleep-3 migrate-up dev-db-seed
 dev-db-down: docker-compose-down
 dev-db-reset: dev-db-down sleep-1 dev-db-up
+
 
 # ------------------------------------------------------------
 # Helper function
