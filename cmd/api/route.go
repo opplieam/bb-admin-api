@@ -9,6 +9,7 @@ import (
 	"github.com/opplieam/bb-admin-api/internal/middleware"
 	"github.com/opplieam/bb-admin-api/internal/utils"
 	"github.com/opplieam/bb-admin-api/internal/v1/probe"
+	"github.com/opplieam/bb-admin-api/internal/v1/user"
 )
 
 func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
@@ -29,6 +30,9 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 	probeH := probe.NewHandler(build, healthCheckStore)
 	v1.GET("/liveness", probeH.LivenessHandler)
 	v1.GET("/readiness", probeH.ReadinessHandler)
+
+	userH := user.NewHandler()
+	v1.POST("/login", userH.LoginHandler)
 
 	return r
 }
