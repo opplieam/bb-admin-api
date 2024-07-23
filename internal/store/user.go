@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"fmt"
 
 	. "github.com/go-jet/jet/v2/postgres"
 	"github.com/opplieam/bb-admin-api/.gen/buy-better-admin/public/model"
@@ -17,18 +18,10 @@ func NewUserStore(db *sql.DB) *UserStore {
 	return &UserStore{DB: db}
 }
 
-// IsAuthenticated check username and hashed password
-// Parameters:
-//
-//	username (string): username
-//	password (string): plain password
-//
-// Returns:
-//
-//	error: return nil if it authenticated
-func (s *UserStore) IsAuthenticated(username, password string) error {
+// FindByCredential return user_id if credential match
+func (s *UserStore) FindByCredential(username, password string) (int32, error) {
 	stmt := SELECT(
-		Users.Password,
+		Users.ID, Users.Password,
 	).FROM(
 		Users,
 	).WHERE(
@@ -39,11 +32,11 @@ func (s *UserStore) IsAuthenticated(username, password string) error {
 		model.Users
 	}
 	if err := stmt.Query(s.DB, &dest); err != nil {
-		return err
+		return 0, ErrRecordNotFound
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(dest.Password), []byte(password)); err != nil {
-		return err
+		return 0, fmt.Errorf("password mismatch, %w", err)
 	}
 
-	return nil
+	return dest.ID, nil
 }

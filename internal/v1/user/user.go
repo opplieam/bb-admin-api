@@ -2,12 +2,14 @@ package user
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/opplieam/bb-admin-api/internal/utils"
 )
 
 type Storer interface {
-	IsAuthenticated(username, password string) error
+	FindByCredential(username, password string) (int32, error)
 }
 
 type Handler struct {
@@ -28,18 +30,26 @@ type loginParams struct {
 func (h *Handler) LoginHandler(c *gin.Context) {
 	var loginParams loginParams
 	if err := c.BindJSON(&loginParams); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": "wrong credentials"})
+		_ = c.AbortWithError(http.StatusBadRequest, err)
+		c.JSON(-1, gin.H{"msg": "wrong credentials"})
 		return
 	}
-	err := h.Store.IsAuthenticated(loginParams.Username, loginParams.Password)
+	userId, err := h.Store.FindByCredential(loginParams.Username, loginParams.Password)
 	if err != nil {
-		_ = c.AbortWithError(http.StatusUnauthorized, err)
+		_ = c.AbortWithError(http.StatusNotFound, err)
+		c.JSON(-1, gin.H{"msg": "wrong credentials"})
+		return
+	}
+
+	token, err := utils.GenerateToken(time.Hour, userId)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.JSON(200, gin.H{
 		"username": loginParams.Username,
-		"password": loginParams.Password,
-		//"hashed":   string(hashPass),
+		"token":    token,
+		"user_id":  userId,
 	})
 }

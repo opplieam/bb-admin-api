@@ -77,6 +77,17 @@ dev-db-reset: dev-db-down sleep-1 dev-db-up
 jet-gen:
 	jet -dsn=$(DB_DSN) -path=./.gen
 
+
+# ------------------------------------------------------------
+# Token generator
+token-gen-build:
+	go build -o ./bin/tokengen ./cmd/tokengen
+
+token-gen-valid:
+	./bin/tokengen -duration=1h -userid=1
+token-gen-expire:
+	./bin/tokengen -duration=-1h -userid=1
+
 # ------------------------------------------------------------
 # Helper function
 sleep-%:
