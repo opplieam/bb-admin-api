@@ -5,8 +5,8 @@ import (
 	"log/slog"
 
 	"github.com/gin-gonic/gin"
-	"github.com/opplieam/bb-admin-api/internal/db/healthcheck"
 	"github.com/opplieam/bb-admin-api/internal/middleware"
+	"github.com/opplieam/bb-admin-api/internal/store"
 	"github.com/opplieam/bb-admin-api/internal/utils"
 	"github.com/opplieam/bb-admin-api/internal/v1/probe"
 	"github.com/opplieam/bb-admin-api/internal/v1/user"
@@ -26,7 +26,7 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 
 	v1 := r.Group("/v1")
 
-	healthCheckStore := healthcheck.NewStore(db)
+	healthCheckStore := store.NewHealthCheckStore(db)
 	probeH := probe.NewHandler(build, healthCheckStore)
 	v1.GET("/liveness", probeH.LivenessHandler)
 	v1.GET("/readiness", probeH.ReadinessHandler)
