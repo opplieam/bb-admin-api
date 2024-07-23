@@ -6,11 +6,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Handler struct {
+type Storer interface {
+	IsAuthenticated(username, password string) error
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+type Handler struct {
+	Store Storer
+}
+
+func NewHandler(store Storer) *Handler {
+	return &Handler{
+		Store: store,
+	}
 }
 
 type loginParams struct {
@@ -24,6 +31,15 @@ func (h *Handler) LoginHandler(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": "wrong credentials"})
 		return
 	}
+	err := h.Store.IsAuthenticated(loginParams.Username, loginParams.Password)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusUnauthorized, err)
+		return
+	}
 
-	c.JSON(200, loginParams)
+	c.JSON(200, gin.H{
+		"username": loginParams.Username,
+		"password": loginParams.Password,
+		//"hashed":   string(hashPass),
+	})
 }

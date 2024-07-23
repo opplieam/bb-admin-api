@@ -31,7 +31,8 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 	v1.GET("/liveness", probeH.LivenessHandler)
 	v1.GET("/readiness", probeH.ReadinessHandler)
 
-	userH := user.NewHandler()
+	userStore := store.NewUserStore(db)
+	userH := user.NewHandler(userStore)
 	v1.POST("/login", userH.LoginHandler)
 
 	return r
