@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -17,9 +16,7 @@ func TestToken(t *testing.T) {
 }
 
 func (s *TokenSuite) SetupSuite() {
-	if err := godotenv.Load("../../.env"); err != nil {
-		s.Require().NoError(err, "Error loading .env file")
-	}
+	GetEnvForTesting()
 }
 
 func (s *TokenSuite) TestValidToken() {

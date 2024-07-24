@@ -47,8 +47,6 @@ func (h *Handler) LoginHandler(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"username": loginParams.Username,
-		"token":    token,
-		"user_id":  userId,
+		"token": token,
 	})
 }
