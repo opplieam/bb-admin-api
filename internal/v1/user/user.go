@@ -30,7 +30,6 @@ type loginParams struct {
 func (h *Handler) LoginHandler(c *gin.Context) {
 	var loginParams loginParams
 	if err := c.BindJSON(&loginParams); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err)
 		c.JSON(-1, gin.H{"msg": "wrong credentials"})
 		return
 	}

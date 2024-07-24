@@ -23,4 +23,24 @@ spec:
             limits:
               cpu: "500m"
 
+          livenessProbe:
+            httpGet:
+              path: /v1/liveness
+              port: 3000
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 4
+
+          readinessProbe:
+            httpGet:
+              path: /v1/readiness
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 4
+
 
