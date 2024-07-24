@@ -8,18 +8,8 @@ import (
 	"github.com/opplieam/bb-admin-api/internal/utils"
 )
 
-type Storer interface {
+type LoginI interface {
 	FindByCredential(username, password string) (int32, error)
-}
-
-type Handler struct {
-	Store Storer
-}
-
-func NewHandler(store Storer) *Handler {
-	return &Handler{
-		Store: store,
-	}
 }
 
 type loginParams struct {

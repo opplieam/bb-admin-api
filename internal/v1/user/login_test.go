@@ -14,20 +14,20 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type UserUnitTestSuite struct {
+type LoginUnitTestSuite struct {
 	suite.Suite
 }
 
-func TestUserHandler(t *testing.T) {
-	suite.Run(t, new(UserUnitTestSuite))
+func TestLoginHandler(t *testing.T) {
+	suite.Run(t, new(LoginUnitTestSuite))
 }
 
-func (s *UserUnitTestSuite) SetupSuite() {
+func (s *LoginUnitTestSuite) SetupSuite() {
 	gin.SetMode(gin.TestMode)
 	utils.GetEnvForTesting()
 }
 
-func (s *UserUnitTestSuite) TestLoginHandler() {
+func (s *LoginUnitTestSuite) TestLoginHandler() {
 	testCases := []struct {
 		name         string
 		body         gin.H
