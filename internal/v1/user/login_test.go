@@ -1,11 +1,11 @@
 package user
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +27,7 @@ func (s *LoginUnitTestSuite) SetupSuite() {
 	utils.GetEnvForTesting()
 }
 
-func (s *LoginUnitTestSuite) TestLoginHandler() {
+func (s *LoginUnitTestSuite) TestLogin() {
 	testCases := []struct {
 		name         string
 		body         gin.H
@@ -73,11 +73,14 @@ func (s *LoginUnitTestSuite) TestLoginHandler() {
 			router := gin.Default()
 			userH := NewHandler(mockDB)
 			router.POST("/login", userH.LoginHandler)
-			reqBody, _ := json.Marshal(tc.body)
-			req, _ := http.NewRequest("POST", "/login", strings.NewReader(string(reqBody)))
 
+			reqBody, err := json.Marshal(tc.body)
+			s.Require().NoError(err)
+			req, err := http.NewRequest("POST", "/login", bytes.NewReader(reqBody))
+			s.Require().NoError(err)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
+
 			s.Assert().Equal(w.Code, tc.wantedStatus)
 			s.Assert().Contains(w.Body.String(), tc.wantedText)
 		})
