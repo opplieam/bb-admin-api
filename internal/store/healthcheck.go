@@ -1,20 +1,18 @@
-package healthcheck
+package store
 
 import (
 	"database/sql"
 )
 
-type Store struct {
+type HealthCheckStore struct {
 	DB *sql.DB
 }
 
-func NewStore(db *sql.DB) *Store {
-	return &Store{
-		DB: db,
-	}
+func NewHealthCheckStore(db *sql.DB) *HealthCheckStore {
+	return &HealthCheckStore{DB: db}
 }
 
-func (s *Store) HealthCheck() (bool, error) {
+func (s *HealthCheckStore) HealthCheck() (bool, error) {
 	tmp := false
 	rows, err := s.DB.Query(`SELECT true`)
 	if err != nil {
@@ -28,5 +26,4 @@ func (s *Store) HealthCheck() (bool, error) {
 	}
 
 	return tmp, nil
-
 }

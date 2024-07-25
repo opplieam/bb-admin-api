@@ -30,3 +30,6 @@ bin
 # Env
 .env
 .postgres.env
+
+# secret file that should not upload to git
+k8s/secret/dev/
