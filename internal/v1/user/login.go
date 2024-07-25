@@ -36,6 +36,24 @@ func (h *Handler) LoginHandler(c *gin.Context) {
 		return
 	}
 
+	refreshToken, err := utils.GenerateToken(time.Hour*730, userId) // 1 month
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.SetSameSite(http.SameSiteStrictMode)
+	//TODO: change domain name and secure depend on environment
+	c.SetCookie(
+		"refresh_token",
+		refreshToken,
+		2629800,
+		"/",
+		"localhost",
+		false,
+		true,
+	)
+
 	c.JSON(200, gin.H{
 		"token": token,
 	})

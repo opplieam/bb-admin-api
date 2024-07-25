@@ -29,11 +29,13 @@ func (s *LoginUnitTestSuite) SetupSuite() {
 
 func (s *LoginUnitTestSuite) TestLogin() {
 	testCases := []struct {
-		name         string
-		body         gin.H
-		buildStubs   func(store *MockStorer)
-		wantedText   string
-		wantedStatus int
+		name             string
+		body             gin.H
+		buildStubs       func(store *MockStorer)
+		wantedText       string
+		wantedStatus     int
+		wantedSetCookies string
+		wantedSameSite   string
 	}{
 		{
 			name: "valid credential",
@@ -41,16 +43,20 @@ func (s *LoginUnitTestSuite) TestLogin() {
 			buildStubs: func(store *MockStorer) {
 				store.EXPECT().FindByCredential(mock.Anything, mock.Anything).Return(2, nil).Once()
 			},
-			wantedText:   "token",
-			wantedStatus: http.StatusOK,
+			wantedText:       "token",
+			wantedStatus:     http.StatusOK,
+			wantedSetCookies: "refresh_token",
+			wantedSameSite:   "SameSite=Strict",
 		},
 		{
 			name: "wrong body request",
 			body: gin.H{"user": "admin", "pass": "admin12345"},
 			buildStubs: func(store *MockStorer) {
 			},
-			wantedText:   "wrong credentials",
-			wantedStatus: http.StatusBadRequest,
+			wantedText:       "wrong credentials",
+			wantedStatus:     http.StatusBadRequest,
+			wantedSetCookies: "",
+			wantedSameSite:   "",
 		},
 		{
 			name: "wrong credential",
@@ -61,8 +67,10 @@ func (s *LoginUnitTestSuite) TestLogin() {
 					Return(0, fmt.Errorf("record not found")).
 					Once()
 			},
-			wantedText:   "wrong credentials",
-			wantedStatus: http.StatusNotFound,
+			wantedText:       "wrong credentials",
+			wantedStatus:     http.StatusNotFound,
+			wantedSetCookies: "",
+			wantedSameSite:   "",
 		},
 	}
 	for _, tc := range testCases {
@@ -83,6 +91,7 @@ func (s *LoginUnitTestSuite) TestLogin() {
 
 			s.Assert().Equal(w.Code, tc.wantedStatus)
 			s.Assert().Contains(w.Body.String(), tc.wantedText)
+			s.Assert().Contains(w.Header().Get("Set-Cookie"), tc.wantedSetCookies)
 		})
 	}
 
