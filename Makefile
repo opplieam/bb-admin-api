@@ -105,6 +105,13 @@ token-gen-expire:
 	./bin/tokengen -duration=-1h -userid=1
 
 # ------------------------------------------------------------
+# Quick run for frontend dev
+go-build-run:
+	go build -o ./bin/server ./cmd/api
+	./bin/server
+server-up: dev-db-up go-build-run
+
+# ------------------------------------------------------------
 # Helper function
 sleep-%:
 	sleep $(@:sleep-%=%)
