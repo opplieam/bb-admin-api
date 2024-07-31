@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log/slog"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/opplieam/bb-admin-api/internal/middleware"
 	"github.com/opplieam/bb-admin-api/internal/store"
@@ -22,6 +23,7 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 	}
 
 	r.Use(gin.Recovery())
+	r.Use(cors.Default())
 	r.Use(middleware.SLogger(log, []string{"/v1/liveness", "/v1/readiness"}))
 
 	v1 := r.Group("/v1")
