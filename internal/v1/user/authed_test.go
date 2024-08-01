@@ -119,9 +119,9 @@ func (s *AuthedUnitTestSuite) TestLogoutUnit() {
 	mockStore := NewMockStorer(s.T())
 	router := gin.Default()
 	userH := NewHandler(mockStore)
-	router.GET("/logout", userH.LogoutHandler)
+	router.DELETE("/logout", userH.LogoutHandler)
 
-	req := httptest.NewRequest("GET", "/logout", nil)
+	req := httptest.NewRequest("DELETE", "/logout", nil)
 	req.AddCookie(&http.Cookie{Name: "refresh_token", Value: "v4.local.HN....."})
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
