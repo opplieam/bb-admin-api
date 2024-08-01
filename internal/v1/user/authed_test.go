@@ -27,25 +27,25 @@ var runTest = flag.String(
 	"u = only unit test, i = only integration test, ui = both unit and integration",
 )
 
-type LoginUnitTestSuite struct {
+type AuthedUnitTestSuite struct {
 	suite.Suite
 }
 
-func TestLoginHandler(t *testing.T) {
+func TestAuthenticateHandler(t *testing.T) {
 	if strings.Contains(*runTest, "u") {
-		suite.Run(t, new(LoginUnitTestSuite))
+		suite.Run(t, new(AuthedUnitTestSuite))
 	}
 	if strings.Contains(*runTest, "i") {
-		suite.Run(t, new(LoginIntegrTestSuite))
+		suite.Run(t, new(AuthedIntegrTestSuite))
 	}
 }
 
-func (s *LoginUnitTestSuite) SetupSuite() {
+func (s *AuthedUnitTestSuite) SetupSuite() {
 	gin.SetMode(gin.TestMode)
 	utils.GetEnvForTesting()
 }
 
-func (s *LoginUnitTestSuite) TestLoginUnit() {
+func (s *AuthedUnitTestSuite) TestLoginUnit() {
 	testCases := []struct {
 		name             string
 		body             gin.H
@@ -115,19 +115,35 @@ func (s *LoginUnitTestSuite) TestLoginUnit() {
 
 }
 
-type LoginIntegrTestSuite struct {
+func (s *AuthedUnitTestSuite) TestLogoutUnit() {
+	mockStore := NewMockStorer(s.T())
+	router := gin.Default()
+	userH := NewHandler(mockStore)
+	router.DELETE("/logout", userH.LogoutHandler)
+
+	req := httptest.NewRequest("DELETE", "/logout", nil)
+	req.AddCookie(&http.Cookie{Name: "refresh_token", Value: "v4.local.HN....."})
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	setCookies := w.Header().Get("Set-Cookie")
+	s.Assert().Contains(setCookies, "refresh_token=;")
+	s.Assert().Contains(setCookies, "Max-Age=0;")
+}
+
+type AuthedIntegrTestSuite struct {
 	suite.Suite
 	TestDB     *sql.DB
 	DockerPool *dockertest.Pool
 	Resource   *dockertest.Resource
 }
 
-func (s *LoginIntegrTestSuite) SetupSuite() {
+func (s *AuthedIntegrTestSuite) SetupSuite() {
 	gin.SetMode(gin.TestMode)
 	utils.GetEnvForTesting()
 }
 
-func (s *LoginIntegrTestSuite) SetupTest() {
+func (s *AuthedIntegrTestSuite) SetupTest() {
 	testDB, pool, resource, err := utils.CreateDockerTestContainer()
 	s.Require().NoError(err, "failed to create container")
 
@@ -144,12 +160,7 @@ func (s *LoginIntegrTestSuite) SetupTest() {
 	s.TestDB = testDB
 }
 
-func (s *LoginIntegrTestSuite) TearDownTest() {
-	err := s.DockerPool.Purge(s.Resource)
-	s.Require().NoError(err, "could not purge pool")
-}
-
-func (s *LoginIntegrTestSuite) TestLoginIntegr() {
+func (s *AuthedIntegrTestSuite) TestLoginIntegr() {
 	testCases := []struct {
 		name             string
 		body             gin.H
@@ -210,4 +221,9 @@ func (s *LoginIntegrTestSuite) TestLoginIntegr() {
 			s.Assert().Contains(w.Header().Get("Set-Cookie"), tc.wantedSetCookies)
 		})
 	}
+}
+
+func (s *AuthedIntegrTestSuite) TearDownTest() {
+	err := s.DockerPool.Purge(s.Resource)
+	s.Require().NoError(err, "could not purge pool")
 }

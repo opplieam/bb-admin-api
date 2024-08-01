@@ -8,7 +8,7 @@ import (
 	"github.com/opplieam/bb-admin-api/internal/utils"
 )
 
-type LoginI interface {
+type AuthedI interface {
 	FindByCredential(username, password string) (int32, error)
 }
 
@@ -57,4 +57,10 @@ func (h *Handler) LoginHandler(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"token": token,
 	})
+}
+
+func (h *Handler) LogoutHandler(c *gin.Context) {
+	//TODO: change domain name and secure depend on environment
+	c.SetCookie("refresh_token", "", -1, "/", "localhost", false, true)
+	c.JSON(200, gin.H{"msg": "logged out"})
 }

@@ -36,6 +36,7 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 	userStore := store.NewUserStore(db)
 	userH := user.NewHandler(userStore)
 	v1.POST("/login", userH.LoginHandler)
+	v1.DELETE("/logout", userH.LogoutHandler)
 
 	return r
 }
