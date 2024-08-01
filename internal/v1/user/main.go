@@ -1,7 +1,7 @@
 package user
 
 type Storer interface {
-	LoginI
+	AuthedI
 }
 
 type Handler struct {
