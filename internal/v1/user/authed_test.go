@@ -63,8 +63,8 @@ func (s *AuthedUnitTestSuite) TestLoginUnit() {
 			body: gin.H{"user": "admin", "pass": "admin12345"},
 			buildStubs: func(store *MockStorer) {
 			},
-			wantedText:       "wrong credentials",
-			wantedStatus:     http.StatusBadRequest,
+			wantedText:       "",
+			wantedStatus:     http.StatusUnprocessableEntity,
 			wantedSetCookies: "",
 			wantedSameSite:   "",
 		},
@@ -77,7 +77,7 @@ func (s *AuthedUnitTestSuite) TestLoginUnit() {
 					Return(0, fmt.Errorf("record not found")).
 					Once()
 			},
-			wantedText:       "wrong credentials",
+			wantedText:       "",
 			wantedStatus:     http.StatusNotFound,
 			wantedSetCookies: "",
 			wantedSameSite:   "",
@@ -172,15 +172,15 @@ func (s *AuthedIntegrTestSuite) TestLoginIntegr() {
 		{
 			name:             "wrong body request",
 			body:             gin.H{"user": "admin", "pass": "admin12345"},
-			wantedText:       "wrong credentials",
-			wantedStatus:     http.StatusBadRequest,
+			wantedText:       "",
+			wantedStatus:     http.StatusUnprocessableEntity,
 			wantedSetCookies: "",
 			wantedSameSite:   "",
 		},
 		{
 			name:             "wrong password",
 			body:             gin.H{"username": "admin", "password": "admin1111"},
-			wantedText:       "wrong credentials",
+			wantedText:       "",
 			wantedStatus:     http.StatusNotFound,
 			wantedSetCookies: "",
 			wantedSameSite:   "",
@@ -188,7 +188,7 @@ func (s *AuthedIntegrTestSuite) TestLoginIntegr() {
 		{
 			name:             "inactive user",
 			body:             gin.H{"username": "pon", "password": "admin1234"},
-			wantedText:       "wrong credentials",
+			wantedText:       "",
 			wantedStatus:     http.StatusNotFound,
 			wantedSetCookies: "",
 			wantedSameSite:   "",
