@@ -4,11 +4,9 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -21,23 +19,17 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-var runTest = flag.String(
-	"run",
-	"u",
-	"u = only unit test, i = only integration test, ui = both unit and integration",
-)
-
 type AuthedUnitTestSuite struct {
 	suite.Suite
 }
 
 func TestAuthenticateHandler(t *testing.T) {
-	if strings.Contains(*runTest, "u") {
-		suite.Run(t, new(AuthedUnitTestSuite))
+	suite.Run(t, new(AuthedUnitTestSuite))
+
+	if testing.Short() {
+		t.Skip("skipping integration test")
 	}
-	if strings.Contains(*runTest, "i") {
-		suite.Run(t, new(AuthedIntegrTestSuite))
-	}
+	suite.Run(t, new(AuthedIntegrTestSuite))
 }
 
 func (s *AuthedUnitTestSuite) SetupSuite() {

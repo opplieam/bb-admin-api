@@ -18,7 +18,7 @@ type SLoggerTestSuite struct {
 	buf    *bytes.Buffer
 }
 
-func TestSLogger(t *testing.T) {
+func TestSLoggerMiddleware(t *testing.T) {
 	suite.Run(t, new(SLoggerTestSuite))
 }
 

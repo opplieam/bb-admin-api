@@ -105,6 +105,21 @@ token-gen-expire:
 	./bin/tokengen -duration=-1h -userid=1
 
 # ------------------------------------------------------------
+# Run Test
+test-all-v:
+	go test ./... -v
+test-unit-v:
+	go test ./... -short -v
+test-integr-v:
+	go test ./... -testify.m Integr -v
+test-all:
+	go test ./...
+test-unit:
+	go test ./... -short
+test-integr:
+	go test ./... -testify.m Integr
+
+# ------------------------------------------------------------
 # Quick run for frontend dev
 go-build-run:
 	go build -o ./bin/server ./cmd/api
