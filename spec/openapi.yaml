@@ -1,0 +1,70 @@
+openapi: 3.0.3
+info:
+  title: Buy Better Admin
+  description: API used for Buy Better admin system and scraping service
+  version: 0.0.1
+servers:
+  - url: 'http://localhost:3000/v1'
+paths:
+  /logout:
+    delete:
+      summary: Logout
+      description: Logout by remove cookies
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MsgRes'
+  /login:
+    post:
+      summary: Authenticate
+      description: Authenticate by username and password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginReq'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginRes'
+        '422':
+          description: Invalid input
+        '404':
+          description: Wrong credential
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    MsgRes:
+      required:
+        - msg
+      type: object
+      properties:
+        msg:
+          type: string
+          example: message from server
+    LoginReq:
+      required:
+        - username
+        - password
+      type: object
+      properties:
+        username:
+          type: string
+          example: admin
+        password:
+          type: string
+          example: admin1234
+    LoginRes:
+      type: object
+      properties:
+        token:
+          type: string
+          example: v4.local.KkgD7tL-RvN2Cbfk-_Qt....

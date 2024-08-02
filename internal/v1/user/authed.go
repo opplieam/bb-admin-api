@@ -19,14 +19,13 @@ type loginParams struct {
 
 func (h *Handler) LoginHandler(c *gin.Context) {
 	var loginParams loginParams
-	if err := c.BindJSON(&loginParams); err != nil {
-		c.JSON(-1, gin.H{"msg": "wrong credentials"})
+	if err := c.ShouldBindJSON(&loginParams); err != nil {
+		_ = c.AbortWithError(http.StatusUnprocessableEntity, err)
 		return
 	}
 	userId, err := h.Store.FindByCredential(loginParams.Username, loginParams.Password)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusNotFound, err)
-		c.JSON(-1, gin.H{"msg": "wrong credentials"})
 		return
 	}
 

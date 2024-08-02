@@ -124,7 +124,16 @@ test-integr:
 go-build-run:
 	go build -o ./bin/server ./cmd/api
 	./bin/server
-server-up: dev-db-up go-build-run
+swagger-up:
+	docker run -p 8081:8080 \
+	--rm -d --name swagger-ui \
+	-e URL=/openapi.yaml \
+	-v ./spec/openapi.yaml:/usr/share/nginx/html/openapi.yaml \
+	swaggerapi/swagger-ui
+swagger-down:
+	docker rm -f swagger-ui || true
+server-up: dev-db-up swagger-up go-build-run
+server-down: swagger-down dev-db-down
 
 # ------------------------------------------------------------
 # Helper function
