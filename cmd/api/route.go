@@ -38,5 +38,7 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 	v1.POST("/login", userH.LoginHandler)
 	v1.DELETE("/logout", userH.LogoutHandler)
 
+	v1.POST("/user", userH.CreateUser)
+
 	return r
 }

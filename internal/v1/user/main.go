@@ -2,6 +2,7 @@ package user
 
 type Storer interface {
 	AuthedI
+	ManageI
 }
 
 type Handler struct {
