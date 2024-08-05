@@ -2,7 +2,6 @@ package store
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/go-jet/jet/v2/qrm"
 	"github.com/lib/pq"
@@ -25,7 +24,6 @@ func DBTransformError(err error) error {
 	}
 
 	if errors.Is(err, qrm.ErrNoRows) {
-		fmt.Println("error: no rows found .......")
 		return ErrRecordNotFound
 	}
 
