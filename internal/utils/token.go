@@ -39,6 +39,6 @@ func VerifyToken(token string) error {
 	if _, err = parser.ParseV4Local(key, token, nil); err != nil {
 		return fmt.Errorf("failed to parse token: %w", err)
 	}
-	
+
 	return nil
 }

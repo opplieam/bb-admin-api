@@ -32,11 +32,31 @@ func (s *UserStore) FindByCredential(username, password string) (int32, error) {
 		model.Users
 	}
 	if err := stmt.Query(s.DB, &dest); err != nil {
-		return 0, ErrRecordNotFound
+		return 0, DBTransformError(err)
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(dest.Password), []byte(password)); err != nil {
 		return 0, fmt.Errorf("password mismatch, %w", err)
 	}
 
 	return dest.ID, nil
+}
+
+func (s *UserStore) CreateUser(username, password string) error {
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("could not hash password: %w", err)
+	}
+	user := model.Users{
+		Username: username,
+		Password: string(hashPassword),
+	}
+
+	stmt := Users.INSERT(Users.Username, Users.Password).MODEL(user)
+	_, err = stmt.Exec(s.DB)
+	if err != nil {
+		return DBTransformError(err)
+
+	}
+
+	return nil
 }

@@ -84,7 +84,7 @@ func (s *AuthedUnitTestSuite) TestLoginUnit() {
 		},
 	}
 	for _, tc := range testCases {
-		s.T().Run(tc.name, func(t *testing.T) {
+		s.Run(tc.name, func() {
 			mockStore := NewMockStorer(s.T())
 			tc.buildStubs(mockStore)
 
@@ -122,6 +122,8 @@ func (s *AuthedUnitTestSuite) TestLogoutUnit() {
 	s.Assert().Contains(setCookies, "refresh_token=;")
 	s.Assert().Contains(setCookies, "Max-Age=0;")
 }
+
+// -----------------------------------------------------
 
 type AuthedIntegrTestSuite struct {
 	suite.Suite
@@ -195,7 +197,7 @@ func (s *AuthedIntegrTestSuite) TestLoginIntegr() {
 		},
 	}
 	for _, tc := range testCases {
-		s.T().Run(tc.name, func(t *testing.T) {
+		s.Run(tc.name, func() {
 			router := gin.Default()
 			userStore := store.NewUserStore(s.TestDB)
 			userH := NewHandler(userStore)
@@ -216,6 +218,8 @@ func (s *AuthedIntegrTestSuite) TestLoginIntegr() {
 }
 
 func (s *AuthedIntegrTestSuite) TearDownTest() {
-	err := s.DockerPool.Purge(s.Resource)
+	err := s.TestDB.Close()
+	s.Require().NoError(err, "failed to close test database")
+	err = s.DockerPool.Purge(s.Resource)
 	s.Require().NoError(err, "could not purge pool")
 }
