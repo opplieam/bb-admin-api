@@ -29,6 +29,9 @@ DB_NAME				:= "buy-better-admin"
 DB_USERNAME			:= "postgres"
 CONTAINER_NAME		:= "pg-dev-db"
 
+tidy:
+	go mod tidy
+
 docker-build-dev:
 	@eval $$(minikube docker-env);\
 	docker build \
@@ -51,7 +54,7 @@ dev-restart:
 dev-stop:
 	kubectl delete -k k8s/dev/admin-api
 
-dev-apply: docker-build-dev kus-dev apply-secret dev-restart
+dev-apply: tidy docker-build-dev kus-dev apply-secret dev-restart
 
 # ------------------------------------------------------------
 # DB
