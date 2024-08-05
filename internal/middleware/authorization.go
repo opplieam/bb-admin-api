@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -21,12 +21,18 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 			c.JSON(-1, gin.H{"msg": "wrong header"})
 			return
 		}
-		token := strings.Split(header.Authorization, "Bearer ")[1]
+		splitBearer := strings.Split(header.Authorization, "Bearer ")
+		if len(splitBearer) != 2 {
+			_ = c.AbortWithError(http.StatusUnauthorized, fmt.Errorf("invalid token type"))
+			c.JSON(-1, gin.H{"msg": "invalid token type"})
+			return
+		}
 
+		token := splitBearer[1]
 		err := utils.VerifyToken(token)
 		if err != nil {
 			_ = c.AbortWithError(http.StatusUnauthorized, err)
-			c.JSON(-1, gin.H{"msg": errors.Unwrap(err).Error()})
+			c.JSON(-1, gin.H{"msg": err.Error()})
 			return
 		}
 
