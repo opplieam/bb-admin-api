@@ -23,7 +23,10 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 	}
 
 	r.Use(gin.Recovery())
-	r.Use(cors.Default())
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AddAllowHeaders("Authorization")
+	r.Use(cors.New(corsConfig))
 	r.Use(middleware.SLogger(log, []string{"/v1/liveness", "/v1/readiness"}))
 
 	v1 := r.Group("/v1")
