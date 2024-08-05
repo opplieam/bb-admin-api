@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -32,7 +33,7 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 		err := utils.VerifyToken(token)
 		if err != nil {
 			_ = c.AbortWithError(http.StatusUnauthorized, err)
-			c.JSON(-1, gin.H{"msg": err.Error()})
+			c.JSON(-1, gin.H{"msg": errors.Unwrap(err).Error()})
 			return
 		}
 
