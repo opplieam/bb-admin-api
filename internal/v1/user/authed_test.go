@@ -123,6 +123,8 @@ func (s *AuthedUnitTestSuite) TestLogoutUnit() {
 	s.Assert().Contains(setCookies, "Max-Age=0;")
 }
 
+// -----------------------------------------------------
+
 type AuthedIntegrTestSuite struct {
 	suite.Suite
 	TestDB     *sql.DB
@@ -216,6 +218,8 @@ func (s *AuthedIntegrTestSuite) TestLoginIntegr() {
 }
 
 func (s *AuthedIntegrTestSuite) TearDownTest() {
-	err := s.DockerPool.Purge(s.Resource)
+	err := s.TestDB.Close()
+	s.Require().NoError(err, "failed to close test database")
+	err = s.DockerPool.Purge(s.Resource)
 	s.Require().NoError(err, "could not purge pool")
 }
