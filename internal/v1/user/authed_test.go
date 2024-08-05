@@ -84,7 +84,7 @@ func (s *AuthedUnitTestSuite) TestLoginUnit() {
 		},
 	}
 	for _, tc := range testCases {
-		s.T().Run(tc.name, func(t *testing.T) {
+		s.Run(tc.name, func() {
 			mockStore := NewMockStorer(s.T())
 			tc.buildStubs(mockStore)
 
@@ -195,7 +195,7 @@ func (s *AuthedIntegrTestSuite) TestLoginIntegr() {
 		},
 	}
 	for _, tc := range testCases {
-		s.T().Run(tc.name, func(t *testing.T) {
+		s.Run(tc.name, func() {
 			router := gin.Default()
 			userStore := store.NewUserStore(s.TestDB)
 			userH := NewHandler(userStore)
