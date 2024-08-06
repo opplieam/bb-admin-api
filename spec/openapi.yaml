@@ -44,6 +44,7 @@ paths:
           description: Duplicate username
         '500':
           $ref: '#/components/responses/InternalServerError'
+
   /logout:
     delete:
       summary: Logout
@@ -55,6 +56,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MsgRes'
+                
   /login:
     post:
       summary: Authenticate
@@ -77,6 +79,7 @@ paths:
           description: Wrong credential
         '500':
           $ref: '#/components/responses/InternalServerError'
+
 
 components:
   securitySchemes:
@@ -120,6 +123,7 @@ components:
         msg:
           type: string
           example: message from server
+
     LoginReq:
       required:
         - username
@@ -132,6 +136,7 @@ components:
         password:
           type: string
           example: admin1234
+
     LoginRes:
       type: object
       properties:
