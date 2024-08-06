@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	. "github.com/go-jet/jet/v2/postgres"
 	"github.com/opplieam/bb-admin-api/.gen/buy-better-admin/public/model"
@@ -41,6 +42,7 @@ func (s *UserStore) FindByCredential(username, password string) (int32, error) {
 	return dest.ID, nil
 }
 
+// CreateUser Create admin user, return nil if success
 func (s *UserStore) CreateUser(username, password string) error {
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -59,4 +61,26 @@ func (s *UserStore) CreateUser(username, password string) error {
 	}
 
 	return nil
+}
+
+type AllUsersResult struct {
+	ID        int32     `sql:"primary_key" alias:"users.id" json:"id"`
+	CreatedAt time.Time `alias:"users.created_at" json:"created_at"`
+	UpdatedAt time.Time `alias:"users.updated_at" json:"updated_at"`
+	Username  string    `alias:"users.username" json:"username"`
+	Active    bool      `alias:"users.active" json:"active"`
+}
+
+func (s *UserStore) GetAllUsers() ([]AllUsersResult, error) {
+	stmt := SELECT(
+		Users.ID, Users.Username, Users.CreatedAt, Users.UpdatedAt, Users.Active,
+	).FROM(
+		Users,
+	)
+
+	var dest []AllUsersResult
+	if err := stmt.Query(s.DB, &dest); err != nil {
+		return nil, DBTransformError(err)
+	}
+	return dest, nil
 }
