@@ -44,6 +44,7 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 	v1.Use(middleware.AuthorizationMiddleware())
 	{
 		v1.POST("/user", userH.CreateUser)
+		v1.GET("/user", userH.GetAllUsers)
 	}
 
 	return r

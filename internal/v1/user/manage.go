@@ -10,6 +10,7 @@ import (
 
 type ManageI interface {
 	CreateUser(username, password string) error
+	GetAllUsers() ([]store.AllUsersResult, error)
 }
 
 func (h *Handler) CreateUser(c *gin.Context) {
@@ -30,4 +31,13 @@ func (h *Handler) CreateUser(c *gin.Context) {
 		}
 	}
 	c.Status(http.StatusCreated)
+}
+
+func (h *Handler) GetAllUsers(c *gin.Context) {
+	result, err := h.Store.GetAllUsers()
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": result})
 }

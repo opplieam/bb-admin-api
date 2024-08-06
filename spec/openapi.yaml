@@ -7,6 +7,22 @@ servers:
   - url: 'http://localhost:3000/v1'
 paths:
   /user:
+    get:
+      summary: Get all users
+      description: Get all admin users, including inactive user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetAllUsersRes"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       summary: Create user
       description: Create admin user
@@ -28,6 +44,7 @@ paths:
           description: Duplicate username
         '500':
           $ref: '#/components/responses/InternalServerError'
+
   /logout:
     delete:
       summary: Logout
@@ -39,6 +56,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MsgRes'
+
   /login:
     post:
       summary: Authenticate
@@ -62,6 +80,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+
 components:
   securitySchemes:
     bearerAuth:
@@ -74,6 +93,28 @@ components:
     InternalServerError:
       description: Internal server error
   schemas:
+    GetAllUsersRes:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                format: int64
+              created_at:
+                type: string
+                format: date-time
+              updated_at:
+                type: string
+                format: date-time
+              username:
+                type: string
+              active:
+                type: boolean
+
     MsgRes:
       required:
         - msg
@@ -82,6 +123,7 @@ components:
         msg:
           type: string
           example: message from server
+
     LoginReq:
       required:
         - username
@@ -94,6 +136,7 @@ components:
         password:
           type: string
           example: admin1234
+
     LoginRes:
       type: object
       properties:
