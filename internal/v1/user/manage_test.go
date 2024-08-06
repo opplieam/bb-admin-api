@@ -93,6 +93,63 @@ func (s *ManageUnitTestSuite) TestCreateUserUnit() {
 	}
 }
 
+func (s *ManageUnitTestSuite) TestGetAllUsersUnit() {
+	testData := []dbStore.AllUsersResult{
+		{ID: 1, Username: faker.Username(), Active: true},
+		{ID: 2, Username: faker.Username(), Active: false},
+		{ID: 3, Username: faker.Username(), Active: true},
+	}
+
+	testCases := []struct {
+		name             string
+		buildStubs       func(store *MockStorer)
+		wantedStatusCode int
+		wantedBody       map[string][]dbStore.AllUsersResult
+	}{
+		{
+			name: "successful get all users",
+			buildStubs: func(store *MockStorer) {
+				store.EXPECT().GetAllUsers().Return(testData, nil).Once()
+			},
+			wantedStatusCode: http.StatusOK,
+			wantedBody: map[string][]dbStore.AllUsersResult{
+				"data": testData,
+			},
+		},
+		{
+			name: "no record found",
+			buildStubs: func(store *MockStorer) {
+				store.EXPECT().GetAllUsers().Return(nil, dbStore.ErrRecordNotFound)
+			},
+			wantedStatusCode: http.StatusInternalServerError,
+			wantedBody:       nil,
+		},
+	}
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			mockStore := NewMockStorer(s.T())
+			tc.buildStubs(mockStore)
+			router := gin.Default()
+			userH := NewHandler(mockStore)
+			router.GET("/user", userH.GetAllUsers)
+
+			req := httptest.NewRequest(http.MethodGet, "/user", nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+
+			var gotResponse map[string][]dbStore.AllUsersResult
+			if tc.wantedBody != nil {
+				err := json.Unmarshal(w.Body.Bytes(), &gotResponse)
+				s.Require().NoError(err)
+				s.Assert().Equal(tc.wantedBody, gotResponse)
+			}
+
+			s.Assert().Equal(tc.wantedStatusCode, w.Code)
+
+		})
+	}
+}
+
 // -----------------------------------------------------
 
 type ManageIntegrTestSuite struct {
@@ -159,6 +216,41 @@ func (s *ManageIntegrTestSuite) TestCreateUserIntegr() {
 			router.ServeHTTP(w, req)
 
 			s.Assert().Equal(tc.wantedStatusCode, w.Code)
+		})
+	}
+}
+
+func (s *ManageIntegrTestSuite) TestGetAllUsersIntegr() {
+	testCases := []struct {
+		name             string
+		wantedStatusCode int
+		wantedBody       []string
+	}{
+		{
+			name:             "successful get all users",
+			wantedStatusCode: http.StatusOK,
+			wantedBody:       []string{"admin", "pon"},
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			router := gin.Default()
+			userH := NewHandler(dbStore.NewUserStore(s.TestDB))
+			router.GET("/user", userH.GetAllUsers)
+
+			req := httptest.NewRequest(http.MethodGet, "/user", nil)
+			w := httptest.NewRecorder()
+
+			router.ServeHTTP(w, req)
+
+			s.Assert().Equal(tc.wantedStatusCode, w.Code)
+			if tc.wantedBody != nil {
+				for _, v := range tc.wantedBody {
+					s.Assert().Contains(w.Body.String(), v)
+				}
+			}
+
 		})
 	}
 }
