@@ -56,7 +56,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MsgRes'
-                
+
   /login:
     post:
       summary: Authenticate
