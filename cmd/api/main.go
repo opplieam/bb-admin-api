@@ -53,6 +53,7 @@ func run(log *slog.Logger) error {
 
 	serverErrors := make(chan error, 1)
 	go func() {
+		defer close(serverErrors)
 		log.Info("start up", "status", "api router started", "address", srv.Addr)
 		serverErrors <- srv.ListenAndServe()
 	}()
