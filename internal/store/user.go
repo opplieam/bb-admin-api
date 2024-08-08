@@ -77,6 +77,8 @@ func (s *UserStore) GetAllUsers() ([]AllUsersResult, error) {
 		Users.ID, Users.Username, Users.CreatedAt, Users.UpdatedAt, Users.Active,
 	).FROM(
 		Users,
+	).ORDER_BY(
+		Users.ID,
 	)
 
 	var dest []AllUsersResult
