@@ -7,6 +7,26 @@ servers:
   - url: 'http://localhost:3000/v1'
 paths:
   /user:
+    patch:
+      summary: update user status
+      description: activate or deactivate user
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Successful operation with no content
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          description: Invalid request body
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserReq'
+
     get:
       summary: Get all users
       description: Get all admin users, including inactive user
@@ -143,3 +163,17 @@ components:
         token:
           type: string
           example: v4.local.KkgD7tL-RvN2Cbfk-_Qt....
+
+    UpdateUserReq:
+      type: object
+      required:
+        - id
+        - active
+      properties:
+        id:
+          type: integer
+          example: 1
+        active:
+          type: boolean
+          example: false
+

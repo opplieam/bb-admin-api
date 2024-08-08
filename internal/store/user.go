@@ -71,6 +71,7 @@ type AllUsersResult struct {
 	Active    bool      `alias:"users.active" json:"active"`
 }
 
+// GetAllUsers return list of users
 func (s *UserStore) GetAllUsers() ([]AllUsersResult, error) {
 	stmt := SELECT(
 		Users.ID, Users.Username, Users.CreatedAt, Users.UpdatedAt, Users.Active,
@@ -83,4 +84,19 @@ func (s *UserStore) GetAllUsers() ([]AllUsersResult, error) {
 		return nil, DBTransformError(err)
 	}
 	return dest, nil
+}
+
+// UpdateUserStatus Update user status, return nil if success
+func (s *UserStore) UpdateUserStatus(userId int32, active bool) error {
+	userModel := model.Users{Active: active, UpdatedAt: time.Now()}
+	stmt := Users.
+		UPDATE(Users.Active, Users.UpdatedAt).
+		MODEL(userModel).
+		WHERE(Users.ID.EQ(Int32(userId)))
+
+	_, err := stmt.Exec(s.DB)
+	if err != nil {
+		return DBTransformError(err)
+	}
+	return nil
 }
