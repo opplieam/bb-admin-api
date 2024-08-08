@@ -150,6 +150,56 @@ func (s *ManageUnitTestSuite) TestGetAllUsersUnit() {
 	}
 }
 
+func (s *ManageUnitTestSuite) TestUpdateUserStatusUnit() {
+	testCases := []struct {
+		name             string
+		buildStubs       func(store *MockStorer)
+		reqBody          gin.H
+		wantedStatusCode int
+	}{
+		{
+			name: "successful update",
+			buildStubs: func(store *MockStorer) {
+				store.EXPECT().UpdateUserStatus(mock.Anything, mock.Anything).Return(nil).Once()
+			},
+			reqBody:          gin.H{"id": 1, "active": true},
+			wantedStatusCode: http.StatusNoContent,
+		},
+		{
+			name:             "wrong request body",
+			buildStubs:       func(store *MockStorer) {},
+			reqBody:          gin.H{"user": "me"},
+			wantedStatusCode: http.StatusUnprocessableEntity,
+		},
+		{
+			name: "fail update",
+			buildStubs: func(store *MockStorer) {
+				store.EXPECT().UpdateUserStatus(mock.Anything, mock.Anything).Return(fmt.Errorf("some error")).Once()
+			},
+			reqBody:          gin.H{"id": 2, "active": false},
+			wantedStatusCode: http.StatusInternalServerError,
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			mockStore := NewMockStorer(s.T())
+			tc.buildStubs(mockStore)
+			router := gin.Default()
+			userH := NewHandler(mockStore)
+			router.PATCH("/user", userH.UpdateUserStatus)
+
+			reqBody, err := json.Marshal(tc.reqBody)
+			s.Require().NoError(err)
+			req := httptest.NewRequest(http.MethodPatch, "/user", bytes.NewReader(reqBody))
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+
+			s.Assert().Equal(tc.wantedStatusCode, w.Code)
+		})
+	}
+}
+
 // -----------------------------------------------------
 
 type ManageIntegrTestSuite struct {
