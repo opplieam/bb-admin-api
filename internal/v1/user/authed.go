@@ -12,18 +12,18 @@ type AuthedI interface {
 	FindByCredential(username, password string) (int32, error)
 }
 
-type loginParams struct {
+type loginReqBody struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required,gte=9"`
 }
 
 func (h *Handler) LoginHandler(c *gin.Context) {
-	var loginParams loginParams
-	if err := c.ShouldBindJSON(&loginParams); err != nil {
+	var loginRB loginReqBody
+	if err := c.ShouldBindJSON(&loginRB); err != nil {
 		_ = c.AbortWithError(http.StatusUnprocessableEntity, err)
 		return
 	}
-	userId, err := h.Store.FindByCredential(loginParams.Username, loginParams.Password)
+	userId, err := h.Store.FindByCredential(loginRB.Username, loginRB.Password)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusNotFound, err)
 		return

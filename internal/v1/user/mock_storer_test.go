@@ -181,6 +181,53 @@ func (_c *MockStorer_GetAllUsers_Call) RunAndReturn(run func() ([]store.AllUsers
 	return _c
 }
 
+// UpdateUserStatus provides a mock function with given fields: userId, active
+func (_m *MockStorer) UpdateUserStatus(userId int32, active bool) error {
+	ret := _m.Called(userId, active)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUserStatus")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int32, bool) error); ok {
+		r0 = rf(userId, active)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockStorer_UpdateUserStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateUserStatus'
+type MockStorer_UpdateUserStatus_Call struct {
+	*mock.Call
+}
+
+// UpdateUserStatus is a helper method to define mock.On call
+//   - userId int32
+//   - active bool
+func (_e *MockStorer_Expecter) UpdateUserStatus(userId interface{}, active interface{}) *MockStorer_UpdateUserStatus_Call {
+	return &MockStorer_UpdateUserStatus_Call{Call: _e.mock.On("UpdateUserStatus", userId, active)}
+}
+
+func (_c *MockStorer_UpdateUserStatus_Call) Run(run func(userId int32, active bool)) *MockStorer_UpdateUserStatus_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(int32), args[1].(bool))
+	})
+	return _c
+}
+
+func (_c *MockStorer_UpdateUserStatus_Call) Return(_a0 error) *MockStorer_UpdateUserStatus_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockStorer_UpdateUserStatus_Call) RunAndReturn(run func(int32, bool) error) *MockStorer_UpdateUserStatus_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockStorer creates a new instance of MockStorer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockStorer(t interface {

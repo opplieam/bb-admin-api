@@ -45,6 +45,7 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 	{
 		v1.POST("/user", userH.CreateUser)
 		v1.GET("/user", userH.GetAllUsers)
+		v1.PATCH("/user", userH.UpdateUserStatus)
 	}
 
 	return r
