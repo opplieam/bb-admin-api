@@ -42,6 +42,25 @@ func (s *UserStore) FindByCredential(username, password string) (int32, error) {
 	return dest.ID, nil
 }
 
+// IsValidUser return nil if user still valid
+func (s *UserStore) IsValidUser(id int32) error {
+	stmt := SELECT(
+		Users.ID,
+	).FROM(
+		Users,
+	).WHERE(
+		Users.ID.EQ(Int32(id)).
+			AND(Users.Active.IS_TRUE()),
+	)
+	var dest struct {
+		model.Users
+	}
+	if err := stmt.Query(s.DB, &dest); err != nil {
+		return DBTransformError(err)
+	}
+	return nil
+}
+
 // CreateUser Create admin user, return nil if success
 func (s *UserStore) CreateUser(username, password string) error {
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)

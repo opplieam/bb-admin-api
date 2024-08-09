@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -121,6 +122,75 @@ func (s *AuthedUnitTestSuite) TestLogoutUnit() {
 	setCookies := w.Header().Get("Set-Cookie")
 	s.Assert().Contains(setCookies, "refresh_token=;")
 	s.Assert().Contains(setCookies, "Max-Age=0;")
+}
+
+func (s *AuthedUnitTestSuite) TestRefreshTokenUnit() {
+	testCases := []struct {
+		name         string
+		buildStubs   func(store *MockStorer)
+		addCookies   func(req *http.Request)
+		wantedStatus int
+		wantedText   string
+	}{
+		{
+			name: "successful refresh token",
+			buildStubs: func(store *MockStorer) {
+				store.EXPECT().IsValidUser(int32(1)).Return(nil).Once()
+			},
+			addCookies: func(req *http.Request) {
+				token, _ := utils.GenerateToken(time.Hour*1, 1)
+				req.AddCookie(&http.Cookie{Name: "refresh_token", Value: token})
+			},
+			wantedStatus: http.StatusOK,
+			wantedText:   "token",
+		},
+		{
+			name:       "expired refresh token",
+			buildStubs: func(store *MockStorer) {},
+			addCookies: func(req *http.Request) {
+				token, _ := utils.GenerateToken(time.Hour*-1, 1)
+				req.AddCookie(&http.Cookie{Name: "refresh_token", Value: token})
+			},
+			wantedStatus: http.StatusUnauthorized,
+			wantedText:   "invalid token",
+		},
+		{
+			name:         "no refresh token",
+			buildStubs:   func(store *MockStorer) {},
+			addCookies:   func(req *http.Request) {},
+			wantedStatus: http.StatusBadRequest,
+			wantedText:   "no token",
+		},
+		{
+			name: "valid token but user is not active",
+			buildStubs: func(mockStore *MockStorer) {
+				mockStore.EXPECT().IsValidUser(int32(2)).Return(store.ErrRecordNotFound).Once()
+			},
+			addCookies: func(req *http.Request) {
+				token, _ := utils.GenerateToken(time.Hour*1, 2)
+				req.AddCookie(&http.Cookie{Name: "refresh_token", Value: token})
+			},
+			wantedStatus: http.StatusForbidden,
+			wantedText:   "",
+		},
+	}
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			mockStore := NewMockStorer(s.T())
+			tc.buildStubs(mockStore)
+
+			router := gin.Default()
+			userH := NewHandler(mockStore)
+
+			router.POST("/refresh_token", userH.RefreshTokenHandler)
+			req := httptest.NewRequest("POST", "/refresh_token", nil)
+			tc.addCookies(req)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			s.Assert().Equal(tc.wantedStatus, w.Code)
+			s.Assert().Contains(w.Body.String(), tc.wantedText)
+		})
+	}
 }
 
 // -----------------------------------------------------

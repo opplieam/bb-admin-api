@@ -1,15 +1,19 @@
 package user
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/opplieam/bb-admin-api/internal/store"
 	"github.com/opplieam/bb-admin-api/internal/utils"
 )
 
 type AuthedI interface {
 	FindByCredential(username, password string) (int32, error)
+	IsValidUser(id int32) error
 }
 
 type loginReqBody struct {
@@ -62,4 +66,52 @@ func (h *Handler) LogoutHandler(c *gin.Context) {
 	//TODO: change domain name and secure depend on environment
 	c.SetCookie("refresh_token", "", -1, "/", "localhost", false, true)
 	c.JSON(http.StatusOK, gin.H{"msg": "logged out"})
+}
+
+func (h *Handler) RefreshTokenHandler(c *gin.Context) {
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		_ = c.AbortWithError(http.StatusBadRequest, err)
+		c.JSON(-1, gin.H{"msg": "no token"})
+		return
+	}
+	token, err := utils.VerifyToken(refreshToken)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusUnauthorized, err)
+		c.JSON(-1, gin.H{"msg": "invalid token"})
+		return
+	}
+
+	userIdString, err := token.GetString("user_id")
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		c.JSON(-1, gin.H{"msg": "no user id"})
+		return
+	}
+	userId, err := strconv.ParseInt(userIdString, 10, 32)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	err = h.Store.IsValidUser(int32(userId))
+	if err != nil {
+		switch {
+		case errors.Is(err, store.ErrRecordNotFound):
+			c.AbortWithStatus(http.StatusForbidden)
+			return
+		default:
+			_ = c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+	}
+
+	newToken, err := utils.GenerateToken(time.Hour, int32(userId))
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": newToken})
+
 }

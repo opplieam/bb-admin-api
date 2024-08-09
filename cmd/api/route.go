@@ -40,6 +40,7 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 	userH := user.NewHandler(userStore)
 	v1.POST("/login", userH.LoginHandler)
 	v1.DELETE("/logout", userH.LogoutHandler)
+	v1.POST("/refresh_token", userH.RefreshTokenHandler)
 
 	v1.Use(middleware.AuthorizationMiddleware())
 	{

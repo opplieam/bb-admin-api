@@ -30,7 +30,7 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 		}
 
 		token := splitBearer[1]
-		err := utils.VerifyToken(token)
+		_, err := utils.VerifyToken(token)
 		if err != nil {
 			_ = c.AbortWithError(http.StatusUnauthorized, err)
 			c.JSON(-1, gin.H{"msg": errors.Unwrap(err).Error()})

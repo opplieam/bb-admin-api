@@ -181,6 +181,52 @@ func (_c *MockStorer_GetAllUsers_Call) RunAndReturn(run func() ([]store.AllUsers
 	return _c
 }
 
+// IsValidUser provides a mock function with given fields: id
+func (_m *MockStorer) IsValidUser(id int32) error {
+	ret := _m.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for IsValidUser")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int32) error); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockStorer_IsValidUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsValidUser'
+type MockStorer_IsValidUser_Call struct {
+	*mock.Call
+}
+
+// IsValidUser is a helper method to define mock.On call
+//   - id int32
+func (_e *MockStorer_Expecter) IsValidUser(id interface{}) *MockStorer_IsValidUser_Call {
+	return &MockStorer_IsValidUser_Call{Call: _e.mock.On("IsValidUser", id)}
+}
+
+func (_c *MockStorer_IsValidUser_Call) Run(run func(id int32)) *MockStorer_IsValidUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(int32))
+	})
+	return _c
+}
+
+func (_c *MockStorer_IsValidUser_Call) Return(_a0 error) *MockStorer_IsValidUser_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockStorer_IsValidUser_Call) RunAndReturn(run func(int32) error) *MockStorer_IsValidUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateUserStatus provides a mock function with given fields: userId, active
 func (_m *MockStorer) UpdateUserStatus(userId int32, active bool) error {
 	ret := _m.Called(userId, active)

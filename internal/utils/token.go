@@ -27,18 +27,18 @@ func GenerateToken(expire time.Duration, userID int32) (string, error) {
 }
 
 // VerifyToken Validate token and return nil if it successes
-func VerifyToken(token string) error {
+func VerifyToken(token string) (*paseto.Token, error) {
 	parser := paseto.NewParser()
 	parser.AddRule(paseto.IssuedBy("bb-admin"))
 	parser.AddRule(paseto.NotExpired())
 
 	key, err := paseto.V4SymmetricKeyFromHex(os.Getenv("TOKEN_ENCODED"))
 	if err != nil {
-		return fmt.Errorf("failed to generate symmetric key: %w", err)
+		return nil, fmt.Errorf("failed to generate symmetric key: %w", err)
 	}
-	if _, err = parser.ParseV4Local(key, token, nil); err != nil {
-		return fmt.Errorf("failed to parse token: %w", err)
+	parsedToken, err := parser.ParseV4Local(key, token, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse token: %w", err)
 	}
-
-	return nil
+	return parsedToken, nil
 }

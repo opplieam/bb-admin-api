@@ -25,7 +25,7 @@ func (s *TokenSuite) TestValidToken() {
 	s.Assert().NotEmpty(token)
 	s.Assert().Contains(token, "v4.local")
 
-	err = VerifyToken(token)
+	_, err = VerifyToken(token)
 	s.Assert().NoError(err)
 }
 
@@ -35,6 +35,6 @@ func (s *TokenSuite) TestInvalidToken() {
 	s.Assert().NotEmpty(token)
 	s.Assert().Contains(token, "v4.local")
 
-	err = VerifyToken(token)
+	_, err = VerifyToken(token)
 	s.Assert().Error(err)
 }
