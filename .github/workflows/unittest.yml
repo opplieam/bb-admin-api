@@ -9,12 +9,12 @@ jobs:
     name: Unit test
     runs-on: ubuntu-latest
     env:
-      TOKEN_ENCODED: ${{ vars.TOKEN_ENCODED }}
+      TOKEN_ENCODED: ${{ secrets.TOKEN_ENCODED }}
 
     steps:
       - name: echo
-        run: | 
-          echo "Step env var: ${{ vars.TOKEN_ENCODED }}"
+        run: echo "Token key ${{secrets.TOKEN_ENCODED}}"
+
 
       - name: Check out code
         uses: actions/checkout@v4
