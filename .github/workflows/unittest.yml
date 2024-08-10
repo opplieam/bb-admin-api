@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: echo
-        run: echo ${{ secrets.TOKEN_ENCODED }}
+        run: echo ${{ vars.TOKEN_ENCODED }}
 
       - name: Check out code
         uses: actions/checkout@v4
