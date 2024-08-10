@@ -8,6 +8,7 @@ jobs:
   test:
     name: Unit test
     runs-on: ubuntu-latest
+    environment: Github Action
     env:
       TOKEN_ENCODED: ${{ secrets.TOKEN_ENCODED }}
 
