@@ -19,7 +19,7 @@ type SLoggerTestSuite struct {
 }
 
 func TestSLoggerMiddleware(t *testing.T) {
-	//suite.Run(t, new(SLoggerTestSuite))
+	suite.Run(t, new(SLoggerTestSuite))
 }
 
 func (s *SLoggerTestSuite) SetupTest() {
