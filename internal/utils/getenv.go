@@ -16,7 +16,7 @@ func GetEnv(key, fallback string) string {
 
 func GetEnvForTesting() {
 	path := ".env"
-	for {
+	for i := 0; i < 5; i++ {
 		err := godotenv.Load(path)
 		if err == nil {
 			break
