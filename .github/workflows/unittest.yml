@@ -13,7 +13,8 @@ jobs:
 
     steps:
       - name: echo
-        run: echo ${{ vars.TOKEN_ENCODED }}
+        run: | 
+          echo "Step env var: ${{ vars.TOKEN_ENCODED }}"
 
       - name: Check out code
         uses: actions/checkout@v4
