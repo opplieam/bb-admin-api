@@ -37,6 +37,6 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		c.Next()
+		//c.Next()
 	}
 }

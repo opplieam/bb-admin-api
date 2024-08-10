@@ -11,6 +11,9 @@ import (
 	"github.com/opplieam/bb-admin-api/internal/utils"
 )
 
+var refreshTokenDuration = 730 * time.Hour // 1 month
+var tokenDuration = 1 * time.Hour
+
 type AuthedI interface {
 	FindByCredential(username, password string) (int32, error)
 	IsValidUser(id int32) error
@@ -33,19 +36,19 @@ func (h *Handler) LoginHandler(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateToken(time.Hour, userId)
+	token, err := utils.GenerateToken(tokenDuration, userId)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	refreshToken, err := utils.GenerateToken(time.Hour*730, userId) // 1 month
+	refreshToken, err := utils.GenerateToken(refreshTokenDuration, userId) // 1 month
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	c.SetSameSite(http.SameSiteStrictMode)
+	c.SetSameSite(http.SameSiteLaxMode)
 	//TODO: change domain name and secure depend on environment
 	c.SetCookie(
 		"refresh_token",
@@ -106,7 +109,7 @@ func (h *Handler) RefreshTokenHandler(c *gin.Context) {
 		}
 	}
 
-	newToken, err := utils.GenerateToken(time.Hour, int32(userId))
+	newToken, err := utils.GenerateToken(tokenDuration, int32(userId))
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return

@@ -24,7 +24,9 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 
 	r.Use(gin.Recovery())
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowAllOrigins = true
+	//corsConfig.AllowAllOrigins = true
+	corsConfig.AllowOrigins = []string{"http://localhost:5173"}
+	corsConfig.AllowCredentials = true
 	corsConfig.AddAllowHeaders("Authorization")
 	r.Use(cors.New(corsConfig))
 	r.Use(middleware.SLogger(log, []string{"/v1/liveness", "/v1/readiness"}))
