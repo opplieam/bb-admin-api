@@ -8,6 +8,8 @@ jobs:
   test:
     name: Unit test
     runs-on: ubuntu-latest
+    env:
+      TOKEN_ENCODED: ${{ secrets.TOKEN_ENCODED }}
 
     steps:
       - name: Setup Go environment
