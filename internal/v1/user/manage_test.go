@@ -222,7 +222,7 @@ func (s *ManageIntegrTestSuite) SetupTest() {
 	s.Require().NoError(err, "failed to migrate database")
 
 	// seed data
-	err = utils.SeedData(testDB, "../../../data/test_user.sql")
+	err = utils.SeedDataFromSQL(testDB, "../../../data/test_user.sql")
 	s.Require().NoError(err, "failed to seed data")
 
 	s.DockerPool = pool

@@ -74,8 +74,17 @@ migrate-down:
     -database=$(DB_DSN) \
     down
 
-dev-db-seed:
-	cat ./data/seed.sql | docker exec -i $(CONTAINER_NAME) psql -U $(DB_USERNAME) -d $(DB_NAME)
+#dev-db-seed:
+#	cat ./data/seed.sql | docker exec -i $(CONTAINER_NAME) psql -U $(DB_USERNAME) -d $(DB_NAME)
+
+dev-db-seed: dbhelper-build dbhelper-seed-all
+
+dbhelper-build:
+	go build -o ./bin/dbhelper ./cmd/dbhelper
+dbhelper-seed-users:
+	./bin/dbhelper seed=users
+dbhelper-seed-all:
+	./bin/dbhelper
 
 dev-db-up: docker-compose-up sleep-3 migrate-up dev-db-seed
 dev-db-down: docker-compose-down

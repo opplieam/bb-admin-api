@@ -85,7 +85,7 @@ func MigrateDB(db *sql.DB, sourceURL string) error {
 	return nil
 }
 
-func SeedData(db *sql.DB, sqlLocation string) error {
+func SeedDataFromSQL(db *sql.DB, sqlLocation string) error {
 	tableSQL, err := os.ReadFile(sqlLocation)
 	if err != nil {
 		return err
