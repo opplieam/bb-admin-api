@@ -30,8 +30,15 @@ func main() {
 		if err := utils.SeedUsers(db); err != nil {
 			log.Fatal(err)
 		}
+		if err := utils.SeedCategory(db); err != nil {
+			log.Fatal(err)
+		}
 	case "users":
 		if err := utils.SeedUsers(db); err != nil {
+			log.Fatal(err)
+		}
+	case "category":
+		if err := utils.SeedCategory(db); err != nil {
 			log.Fatal(err)
 		}
 	}

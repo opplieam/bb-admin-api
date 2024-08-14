@@ -81,8 +81,6 @@ dev-db-seed: dbhelper-build dbhelper-seed-all
 
 dbhelper-build:
 	go build -o ./bin/dbhelper ./cmd/dbhelper
-dbhelper-seed-users:
-	./bin/dbhelper seed=users
 dbhelper-seed-all:
 	./bin/dbhelper
 

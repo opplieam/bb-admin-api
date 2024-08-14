@@ -2,7 +2,9 @@ package utils
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/opplieam/bb-admin-api/.gen/buy-better-admin/public/model"
 	. "github.com/opplieam/bb-admin-api/.gen/buy-better-admin/public/table"
@@ -26,5 +28,43 @@ func SeedUsers(db *sql.DB) error {
 		return err
 	}
 	fmt.Println("Seeded Users")
+	return nil
+}
+
+func SeedCategory(db *sql.DB) error {
+	byteData, err := os.ReadFile("data/category.json")
+	if err != nil {
+		return err
+	}
+	var data map[string][]string
+	err = json.Unmarshal(byteData, &data)
+	if err != nil {
+		return err
+	}
+
+	for k, v := range data {
+		parentStmt := Category.INSERT(Category.Name).
+			MODEL(model.Category{Name: k}).
+			RETURNING(Category.ID)
+		parentDest := model.Category{}
+		err := parentStmt.Query(db, &parentDest)
+		if err != nil {
+			return err
+		}
+
+		var childModelBulk []model.Category
+		for _, vv := range v {
+			childModelBulk = append(childModelBulk, model.Category{
+				ParentID: parentDest.ID, Name: vv,
+			})
+		}
+		childStmt := Category.INSERT(Category.Name, Category.ParentID).
+			MODELS(childModelBulk)
+		_, err = childStmt.Exec(db)
+		if err != nil {
+			return err
+		}
+	}
+	fmt.Println("Seeded Category")
 	return nil
 }
