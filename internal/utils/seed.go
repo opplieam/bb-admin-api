@@ -3,6 +3,7 @@ package utils
 import (
 	"database/sql"
 	"fmt"
+	"math/rand/v2"
 
 	"github.com/go-faker/faker/v4"
 	"github.com/opplieam/bb-admin-api/.gen/buy-better-admin/public/model"
@@ -30,11 +31,14 @@ func SeedUsers(db *sql.DB) error {
 	return nil
 }
 
-func SeedCategory(db *sql.DB) error {
-	var maxNumTopCategory = 10
+var (
+	maxNumTopCategory = 5
+	maxChildLevel     = 4
+)
 
+func SeedCategory(db *sql.DB) error {
 	for i := 0; i < maxNumTopCategory; i++ {
-		if err := insertCategoryRecursive(db, -1, 1, 4); err != nil {
+		if err := insertCategoryRecursive(db, -1, 1); err != nil {
 			return err
 		}
 	}
@@ -42,7 +46,11 @@ func SeedCategory(db *sql.DB) error {
 	return nil
 }
 
-func insertCategoryRecursive(db *sql.DB, parentID int32, level, maxLevel int) error {
+func randRange(min, max int) int {
+	return rand.IntN(max+1-min) + min
+}
+
+func insertCategoryRecursive(db *sql.DB, parentID int32, level int) error {
 	if parentID == -1 {
 		parentStmt := Category.INSERT(Category.Name).
 			MODEL(model.Category{Name: faker.Word()}).
@@ -51,23 +59,30 @@ func insertCategoryRecursive(db *sql.DB, parentID int32, level, maxLevel int) er
 		if err := parentStmt.Query(db, &parentDest); err != nil {
 			return err
 		}
-		return insertCategoryRecursive(db, parentDest.ID, level+1, maxLevel)
+		return insertCategoryRecursive(db, parentDest.ID, level+1)
 	}
 
-	catModel := model.Category{
-		Name:     faker.Word(),
-		ParentID: &parentID,
-		HasChild: level != maxLevel,
+	for i := 1; i <= randRange(1, 3); i++ {
+		catModel := model.Category{
+			Name:     faker.Word(),
+			ParentID: &parentID,
+			HasChild: level != maxChildLevel,
+		}
+		stmt := Category.INSERT(Category.Name, Category.ParentID, Category.HasChild).
+			MODEL(catModel).
+			RETURNING(Category.ID)
+		var childDest model.Category
+		if err := stmt.Query(db, &childDest); err != nil {
+			return err
+		}
+
+		if level == maxChildLevel {
+			continue
+		}
+
+		if err := insertCategoryRecursive(db, childDest.ID, level+1); err != nil {
+			return err
+		}
 	}
-	stmt := Category.INSERT(Category.Name, Category.ParentID, Category.HasChild).
-		MODEL(catModel).
-		RETURNING(Category.ID)
-	var childDest model.Category
-	if err := stmt.Query(db, &childDest); err != nil {
-		return err
-	}
-	if level == maxLevel {
-		return nil
-	}
-	return insertCategoryRecursive(db, childDest.ID, level+1, maxLevel)
+	return nil
 }
