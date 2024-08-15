@@ -32,40 +32,29 @@ func SeedUsers(db *sql.DB) error {
 }
 
 var (
-	maxNumTopCategory = 5
-	maxChildLevel     = 4
+	maxChildLevel = 4
 )
 
 func SeedCategory(db *sql.DB) error {
-	for i := 0; i < maxNumTopCategory; i++ {
-		if err := insertCategoryRecursive(db, -1, 1); err != nil {
-			return err
-		}
-	}
 	fmt.Println("Seeded Category")
-	return nil
+	return insertCategoryRecursive(db, nil, 1)
 }
 
 func randRange(min, max int) int {
 	return rand.IntN(max+1-min) + min
 }
 
-func insertCategoryRecursive(db *sql.DB, parentID int32, level int) error {
-	if parentID == -1 {
-		parentStmt := Category.INSERT(Category.Name).
-			MODEL(model.Category{Name: faker.Word()}).
-			RETURNING(Category.ID)
-		var parentDest model.Category
-		if err := parentStmt.Query(db, &parentDest); err != nil {
-			return err
-		}
-		return insertCategoryRecursive(db, parentDest.ID, level+1)
+func insertCategoryRecursive(db *sql.DB, parentID *int32, level int) error {
+	var maxCategory int
+	if parentID == nil {
+		maxCategory = 5
+	} else {
+		maxCategory = randRange(1, 3)
 	}
-
-	for i := 1; i <= randRange(1, 3); i++ {
+	for i := 1; i <= maxCategory; i++ {
 		catModel := model.Category{
 			Name:     faker.Word(),
-			ParentID: &parentID,
+			ParentID: parentID,
 			HasChild: level != maxChildLevel,
 		}
 		stmt := Category.INSERT(Category.Name, Category.ParentID, Category.HasChild).
@@ -80,7 +69,7 @@ func insertCategoryRecursive(db *sql.DB, parentID int32, level int) error {
 			continue
 		}
 
-		if err := insertCategoryRecursive(db, childDest.ID, level+1); err != nil {
+		if err := insertCategoryRecursive(db, &childDest.ID, level+1); err != nil {
 			return err
 		}
 	}
