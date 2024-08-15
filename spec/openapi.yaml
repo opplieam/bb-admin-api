@@ -6,6 +6,24 @@ info:
 servers:
   - url: 'http://localhost:3000/v1'
 paths:
+  /category:
+    get:
+      summary: Get all category
+      description: Get all deepest category
+      security:
+        - bearerAuth: []
+      responses:
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetAllCategoryRes"
+
   /refresh_token:
     post:
       summary: Refresh token
@@ -144,6 +162,27 @@ components:
     InternalServerError:
       description: Internal server error
   schemas:
+    GetAllCategoryRes:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              name:
+                type: string
+                example: Gaming PC
+              has_child:
+                type: boolean
+                example: false
+              path:
+                type: string
+                example: Electronic > PC > Gaming PC
+
     GetAllUsersRes:
       type: object
       properties:
