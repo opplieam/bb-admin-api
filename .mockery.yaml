@@ -10,3 +10,6 @@ packages:
   github.com/opplieam/bb-admin-api/internal/v1/user:
     interfaces:
       Storer:
+  github.com/opplieam/bb-admin-api/internal/v1/category:
+    interfaces:
+      Storer:

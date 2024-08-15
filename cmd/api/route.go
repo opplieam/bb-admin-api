@@ -9,6 +9,7 @@ import (
 	"github.com/opplieam/bb-admin-api/internal/middleware"
 	"github.com/opplieam/bb-admin-api/internal/store"
 	"github.com/opplieam/bb-admin-api/internal/utils"
+	"github.com/opplieam/bb-admin-api/internal/v1/category"
 	"github.com/opplieam/bb-admin-api/internal/v1/probe"
 	"github.com/opplieam/bb-admin-api/internal/v1/user"
 )
@@ -49,6 +50,11 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 		v1.POST("/user", userH.CreateUser)
 		v1.GET("/user", userH.GetAllUsers)
 		v1.PATCH("/user", userH.UpdateUserStatus)
+
+		catStore := store.NewCategoryStore(db)
+		catH := category.NewHandler(catStore)
+
+		v1.GET("/category", catH.GetAllCategory)
 	}
 
 	return r
