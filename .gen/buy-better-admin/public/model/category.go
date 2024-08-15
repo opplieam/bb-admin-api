@@ -10,5 +10,6 @@ package model
 type Category struct {
 	ID       int32 `sql:"primary_key"`
 	Name     string
-	ParentID int32
+	HasChild bool
+	ParentID *int32
 }

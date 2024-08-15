@@ -19,6 +19,7 @@ type categoryTable struct {
 	// Columns
 	ID       postgres.ColumnInteger
 	Name     postgres.ColumnString
+	HasChild postgres.ColumnBool
 	ParentID postgres.ColumnInteger
 
 	AllColumns     postgres.ColumnList
@@ -62,9 +63,10 @@ func newCategoryTableImpl(schemaName, tableName, alias string) categoryTable {
 	var (
 		IDColumn       = postgres.IntegerColumn("id")
 		NameColumn     = postgres.StringColumn("name")
+		HasChildColumn = postgres.BoolColumn("has_child")
 		ParentIDColumn = postgres.IntegerColumn("parent_id")
-		allColumns     = postgres.ColumnList{IDColumn, NameColumn, ParentIDColumn}
-		mutableColumns = postgres.ColumnList{NameColumn, ParentIDColumn}
+		allColumns     = postgres.ColumnList{IDColumn, NameColumn, HasChildColumn, ParentIDColumn}
+		mutableColumns = postgres.ColumnList{NameColumn, HasChildColumn, ParentIDColumn}
 	)
 
 	return categoryTable{
@@ -73,6 +75,7 @@ func newCategoryTableImpl(schemaName, tableName, alias string) categoryTable {
 		//Columns
 		ID:       IDColumn,
 		Name:     NameColumn,
+		HasChild: HasChildColumn,
 		ParentID: ParentIDColumn,
 
 		AllColumns:     allColumns,
