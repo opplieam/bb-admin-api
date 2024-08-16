@@ -33,6 +33,9 @@ func main() {
 		if err := utils.SeedCategory(db); err != nil {
 			log.Fatal(err)
 		}
+		if err := utils.SeedMatchCategory(db); err != nil {
+			log.Fatal(err)
+		}
 	case "users":
 		if err := utils.SeedUsers(db); err != nil {
 			log.Fatal(err)
@@ -41,5 +44,10 @@ func main() {
 		if err := utils.SeedCategory(db); err != nil {
 			log.Fatal(err)
 		}
+	case "match_category":
+		if err := utils.SeedMatchCategory(db); err != nil {
+			log.Fatal(err)
+		}
 	}
+
 }

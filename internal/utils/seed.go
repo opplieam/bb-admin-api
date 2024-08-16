@@ -6,6 +6,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/go-faker/faker/v4"
+	. "github.com/go-jet/jet/v2/postgres"
 	"github.com/opplieam/bb-admin-api/.gen/buy-better-admin/public/model"
 	. "github.com/opplieam/bb-admin-api/.gen/buy-better-admin/public/table"
 )
@@ -73,5 +74,52 @@ func insertCategoryRecursive(db *sql.DB, parentID *int32, level int) error {
 			return err
 		}
 	}
+	return nil
+}
+
+func getValueOrNil(index int, value []string, totalLevel int) *string {
+	if index > totalLevel {
+		return nil
+	}
+	return &value[index-1]
+}
+
+func SeedMatchCategory(db *sql.DB) error {
+	var totalRecords = 102
+	column := map[int]ColumnString{
+		0: MatchCategory.L1,
+		1: MatchCategory.L2,
+		2: MatchCategory.L3,
+		3: MatchCategory.L4,
+		4: MatchCategory.L5,
+		5: MatchCategory.L6,
+		6: MatchCategory.L7,
+		7: MatchCategory.L8,
+	}
+
+	for range totalRecords {
+		totalLevel := randRange(2, 8)
+		var selectColumn ColumnList
+		var value []string
+		for i := range totalLevel {
+			selectColumn = append(selectColumn, column[i])
+			value = append(value, faker.Word())
+		}
+		stmt := MatchCategory.INSERT(selectColumn).MODEL(model.MatchCategory{
+			L1: faker.Word(),
+			L2: getValueOrNil(1, value, totalLevel),
+			L3: getValueOrNil(2, value, totalLevel),
+			L4: getValueOrNil(3, value, totalLevel),
+			L5: getValueOrNil(4, value, totalLevel),
+			L6: getValueOrNil(5, value, totalLevel),
+			L7: getValueOrNil(6, value, totalLevel),
+			L8: getValueOrNil(7, value, totalLevel),
+		})
+
+		if _, err := stmt.Exec(db); err != nil {
+			return err
+		}
+	}
+	fmt.Println("Seeded Match Category")
 	return nil
 }
