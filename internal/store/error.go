@@ -17,10 +17,14 @@ func DBTransformError(err error) error {
 
 	var pqErr *pq.Error
 	if errors.As(err, &pqErr) {
-		switch err.(*pq.Error).Code {
-		case "23505":
-			return ErrRecordAlreadyExists
+		assertPq, ok := err.(*pq.Error)
+		if ok {
+			switch assertPq.Code {
+			case "23505":
+				return ErrRecordAlreadyExists
+			}
 		}
+
 	}
 
 	if errors.Is(err, qrm.ErrNoRows) {
