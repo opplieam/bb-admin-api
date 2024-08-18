@@ -56,6 +56,7 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 
 		v1.GET("/category", catH.GetAllCategory)
 		v1.GET("/unmatched_category", catH.GetUnmatchedCategory)
+		v1.PATCH("/category", catH.MatchingCategory)
 	}
 
 	return r

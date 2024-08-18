@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	. "github.com/go-jet/jet/v2/postgres"
+	"github.com/opplieam/bb-admin-api/.gen/buy-better-admin/public/model"
 	. "github.com/opplieam/bb-admin-api/.gen/buy-better-admin/public/table"
 	"github.com/opplieam/bb-admin-api/internal/utils"
 )
@@ -133,4 +134,20 @@ func (s *CategoryStore) GetUnmatchedCategory(filter utils.Filter) ([]UnmatchedCa
 	metaData := utils.GetMetaData(totalRecord, filter.Page, filter.PageSize)
 
 	return resultList, metaData, nil
+}
+
+func (s *CategoryStore) UpdateUnmatchedCategory(unMatchedID []int32, catID *int32) error {
+	var sqlIDs []Expression
+	for _, id := range unMatchedID {
+		sqlIDs = append(sqlIDs, Int32(id))
+	}
+	stmt := MatchCategory.UPDATE(MatchCategory.MatchID).
+		MODEL(model.MatchCategory{MatchID: catID}).
+		WHERE(MatchCategory.ID.IN(sqlIDs...))
+
+	_, err := stmt.Exec(s.DB)
+	if err != nil {
+		return DBTransformError(err)
+	}
+	return nil
 }

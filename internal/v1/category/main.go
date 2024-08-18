@@ -11,6 +11,7 @@ import (
 type Storer interface {
 	GetAllCategory() ([]store.AllCategoryResult, error)
 	GetUnmatchedCategory(filter utils.Filter) ([]store.UnmatchedCategoryResult, utils.MetaData, error)
+	UpdateUnmatchedCategory(unMatchedID []int32, catID *int32) error
 }
 
 type Handler struct {
@@ -45,4 +46,23 @@ func (h *Handler) GetUnmatchedCategory(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": result, "metadata": metaData})
+}
+
+type MatchingCategoryReqBody struct {
+	UnmatchedCategoryID []int32 `json:"unmatched_category_id" binding:"required"`
+	CategoryID          *int32  `json:"category_id" binding:"required"`
+}
+
+func (h *Handler) MatchingCategory(c *gin.Context) {
+	var matchingReqBody MatchingCategoryReqBody
+	if err := c.ShouldBindJSON(&matchingReqBody); err != nil {
+		_ = c.AbortWithError(http.StatusUnprocessableEntity, err)
+		return
+	}
+	err := h.Store.UpdateUnmatchedCategory(matchingReqBody.UnmatchedCategoryID, matchingReqBody.CategoryID)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
 }
