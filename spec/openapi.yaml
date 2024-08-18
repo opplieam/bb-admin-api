@@ -6,6 +6,36 @@ info:
 servers:
   - url: 'http://localhost:3000/v1'
 paths:
+  /unmatched_category:
+    get:
+      summary: Get unmatched category
+      description: Get unmatched category, filter by page number and page size
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: current page
+        - in: query
+          name: page_size
+          schema:
+            type: integer
+          description: number of items per page
+      responses:
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        422:
+          description: Invalid request body
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUnmatchedCatRes'
   /category:
     get:
       summary: Get all category
@@ -162,6 +192,42 @@ components:
     InternalServerError:
       description: Internal server error
   schemas:
+    GetUnmatchedCatRes:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              path:
+                type: string
+                example: Electronic > PC > Gaming PC
+              category_level:
+                type: integer
+                example: 2
+        metadata:
+          $ref: '#/components/schemas/MetaDataRes'
+
+    MetaDataRes:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          example: 1
+        page_size:
+          type: integer
+          example: 10
+        last_page:
+          type: integer
+          example: 11
+        total_records:
+          type: integer
+          example: 102
+
     GetAllCategoryRes:
       type: object
       properties:
