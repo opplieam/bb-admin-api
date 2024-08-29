@@ -119,13 +119,25 @@ CONTAINER_NAME
 - `make server down` shutting postgres db and swagger down
 
 ## Running in local cluster minikube
-1. `make dev-up-all`
+1.  create `encoded-secret.yaml` under k8s/secret/dev
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: admin-api-secret
+  namespace: buy-better
+
+type: Opaque
+data:
+  TOKEN_ENCODED: "your base64 encode to TOKEN_ENCODED"
+```
+2. `make dev-up-all`
     * starting postgres db -> migration -> seed fake data
     * starting minikube 
     * apply `bitnami-sealed-secrets` controller
 
-2. `minikbue tunnel` to expose load balancer
-3. `make dev-apply`
+3. `minikbue tunnel` to expose load balancer
+4. `make dev-apply`
     * go mod tidy
     * building an image with docker
     * kustomize apply resources
