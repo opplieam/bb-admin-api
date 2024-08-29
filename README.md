@@ -112,7 +112,7 @@ CONTAINER_NAME
 - Run all test `make test-all-v`
 
 ## Starting server and swagger openapi for Frontend development
-
+![swagger](https://github.com/opplieam/buy-better/blob/main/swagger.png?raw=true)
 - `make server up` starting postgres db, swagger and buy better admin server
   * `localhost:3000` - buy better admin server
   * `localhost:8081` - swagger openapi
