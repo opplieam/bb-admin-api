@@ -12,6 +12,7 @@ type ManageI interface {
 	CreateUser(username, password string) error
 	GetAllUsers() ([]store.AllUsersResult, error)
 	UpdateUserStatus(userId int32, active bool) error
+	DeleteUser(userId int32) error
 }
 
 func (h *Handler) CreateUser(c *gin.Context) {
@@ -60,5 +61,23 @@ func (h *Handler) UpdateUserStatus(c *gin.Context) {
 		return
 	}
 
+	c.Status(http.StatusNoContent)
+}
+
+type deleteUserReqBody struct {
+	ID int32 `json:"id" binding:"required"`
+}
+
+func (h *Handler) DeleteUser(c *gin.Context) {
+	var deleteUserRB deleteUserReqBody
+	if err := c.ShouldBindJSON(&deleteUserRB); err != nil {
+		_ = c.AbortWithError(http.StatusUnprocessableEntity, err)
+		return
+	}
+	err := h.Store.DeleteUser(deleteUserRB.ID)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 	c.Status(http.StatusNoContent)
 }

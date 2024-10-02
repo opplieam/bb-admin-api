@@ -121,3 +121,13 @@ func (s *UserStore) UpdateUserStatus(userId int32, active bool) error {
 	}
 	return nil
 }
+
+// DeleteUser Delete user given by user_id, return nil if success
+func (s *UserStore) DeleteUser(userId int32) error {
+	stmt := Users.DELETE().WHERE(Users.ID.EQ(Int32(userId)))
+	_, err := stmt.Exec(s.DB)
+	if err != nil {
+		return DBTransformError(err)
+	}
+	return nil
+}
