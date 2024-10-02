@@ -1,4 +1,5 @@
 # Buy-Better Admin API
+![workflow](https://github.com/opplieam/bb-admin-api/actions/workflows/unittest.yml/badge.svg)
 ## Table of contents
 - [Overview](#overview)
 - [Project structure](#project-structure)
