@@ -11,8 +11,11 @@ import (
 	"github.com/opplieam/bb-admin-api/internal/utils"
 )
 
-var refreshTokenDuration = 730 * time.Hour // 1 month
-var tokenDuration = 1 * time.Hour
+const (
+	refreshTokenDuration = 730 * time.Hour // 1 month
+	tokenDuration        = 1 * time.Hour
+	cookiesAgeInt        = 2629800
+)
 
 type AuthedI interface {
 	FindByCredential(username, password string) (int32, error)
@@ -53,7 +56,7 @@ func (h *Handler) LoginHandler(c *gin.Context) {
 	c.SetCookie(
 		"refresh_token",
 		refreshToken,
-		2629800,
+		cookiesAgeInt,
 		"/",
 		"localhost",
 		false,
@@ -67,7 +70,13 @@ func (h *Handler) LoginHandler(c *gin.Context) {
 
 func (h *Handler) LogoutHandler(c *gin.Context) {
 	//TODO: change domain name and secure depend on environment
-	c.SetCookie("refresh_token", "", -1, "/", "localhost", false, true)
+	c.SetCookie(
+		"refresh_token",
+		"", -1,
+		"/", "localhost",
+		false,
+		true,
+	)
 	c.JSON(http.StatusOK, gin.H{"msg": "logged out"})
 }
 
