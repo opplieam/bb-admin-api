@@ -212,11 +212,14 @@ func (s *AuthedIntegrTestSuite) SetupTest() {
 	s.Require().NoError(err, "failed to create container")
 
 	// migrate database
-	err = utils.MigrateDB(testDB, "file://../../../migrations/")
+	migratePath, err := utils.GetFilePath("migrations")
+	s.Require().NoError(err, "failed to get migrations path")
+	err = utils.MigrateDB(testDB, fmt.Sprintf("file://%s", migratePath))
 	s.Require().NoError(err, "failed to migrate database")
 
 	// seed data
-	err = utils.SeedDataFromSQL(testDB, "../../../data/test_user.sql")
+	seedPath, err := utils.GetFilePath("data", "test_user.sql")
+	err = utils.SeedDataFromSQL(testDB, seedPath)
 	s.Require().NoError(err, "failed to seed data")
 
 	s.DockerPool = pool
