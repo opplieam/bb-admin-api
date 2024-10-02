@@ -77,6 +77,26 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
   /user:
+    delete:
+      summary: delete user
+      description: delete user given by user id
+      security:
+        - bearerAuth: [ ]
+      responses:
+        204:
+          description: Successful operation with no content
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        422:
+          description: Invalid request body
+        500:
+          $ref: '#/components/responses/InternalServerError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginReq'
+
     patch:
       summary: update user status
       description: activate or deactivate user
@@ -312,4 +332,12 @@ components:
         active:
           type: boolean
           example: false
+
+    DeleteUserReq:
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+          example: 1
 

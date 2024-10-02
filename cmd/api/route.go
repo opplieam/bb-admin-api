@@ -50,6 +50,7 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 		v1.POST("/user", userH.CreateUser)
 		v1.GET("/user", userH.GetAllUsers)
 		v1.PATCH("/user", userH.UpdateUserStatus)
+		v1.DELETE("/user", userH.DeleteUser)
 
 		catStore := store.NewCategoryStore(db)
 		catH := category.NewHandler(catStore)

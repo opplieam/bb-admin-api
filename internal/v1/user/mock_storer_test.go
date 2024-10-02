@@ -67,6 +67,52 @@ func (_c *MockStorer_CreateUser_Call) RunAndReturn(run func(string, string) erro
 	return _c
 }
 
+// DeleteUser provides a mock function with given fields: userId
+func (_m *MockStorer) DeleteUser(userId int32) error {
+	ret := _m.Called(userId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteUser")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int32) error); ok {
+		r0 = rf(userId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockStorer_DeleteUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteUser'
+type MockStorer_DeleteUser_Call struct {
+	*mock.Call
+}
+
+// DeleteUser is a helper method to define mock.On call
+//   - userId int32
+func (_e *MockStorer_Expecter) DeleteUser(userId interface{}) *MockStorer_DeleteUser_Call {
+	return &MockStorer_DeleteUser_Call{Call: _e.mock.On("DeleteUser", userId)}
+}
+
+func (_c *MockStorer_DeleteUser_Call) Run(run func(userId int32)) *MockStorer_DeleteUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(int32))
+	})
+	return _c
+}
+
+func (_c *MockStorer_DeleteUser_Call) Return(_a0 error) *MockStorer_DeleteUser_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockStorer_DeleteUser_Call) RunAndReturn(run func(int32) error) *MockStorer_DeleteUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // FindByCredential provides a mock function with given fields: username, password
 func (_m *MockStorer) FindByCredential(username string, password string) (int32, error) {
 	ret := _m.Called(username, password)

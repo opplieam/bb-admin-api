@@ -200,6 +200,55 @@ func (s *ManageUnitTestSuite) TestUpdateUserStatusUnit() {
 	}
 }
 
+func (s *ManageUnitTestSuite) TestDeleteUserStatusUnit() {
+	testCases := []struct {
+		name             string
+		buildStubs       func(store *MockStorer)
+		reqBody          gin.H
+		wantedStatusCode int
+	}{
+		{
+			name: "successful delete",
+			buildStubs: func(store *MockStorer) {
+				store.EXPECT().DeleteUser(mock.Anything).Return(nil).Once()
+			},
+			reqBody:          gin.H{"id": 1},
+			wantedStatusCode: http.StatusNoContent,
+		},
+		{
+			name:             "wrong request body",
+			buildStubs:       func(store *MockStorer) {},
+			reqBody:          gin.H{"user_id": 1},
+			wantedStatusCode: http.StatusUnprocessableEntity,
+		},
+		{
+			name: "fail delete",
+			buildStubs: func(store *MockStorer) {
+				store.EXPECT().DeleteUser(mock.Anything).Return(fmt.Errorf("some rrror")).Once()
+			},
+			reqBody:          gin.H{"id": -1},
+			wantedStatusCode: http.StatusInternalServerError,
+		},
+	}
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			mockStore := NewMockStorer(s.T())
+			tc.buildStubs(mockStore)
+			router := gin.Default()
+			userH := NewHandler(mockStore)
+			router.DELETE("/user", userH.DeleteUser)
+
+			reqBody, err := json.Marshal(tc.reqBody)
+			s.Require().NoError(err)
+			req := httptest.NewRequest(http.MethodDelete, "/user", bytes.NewReader(reqBody))
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+
+			s.Assert().Equal(tc.wantedStatusCode, w.Code)
+		})
+	}
+}
+
 // -----------------------------------------------------
 
 type ManageIntegrTestSuite struct {

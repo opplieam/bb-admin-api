@@ -143,6 +143,53 @@ func (_c *MockStorer_GetUnmatchedCategory_Call) RunAndReturn(run func(utils.Filt
 	return _c
 }
 
+// UpdateUnmatchedCategory provides a mock function with given fields: unMatchedID, catID
+func (_m *MockStorer) UpdateUnmatchedCategory(unMatchedID []int32, catID *int32) error {
+	ret := _m.Called(unMatchedID, catID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUnmatchedCategory")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func([]int32, *int32) error); ok {
+		r0 = rf(unMatchedID, catID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockStorer_UpdateUnmatchedCategory_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateUnmatchedCategory'
+type MockStorer_UpdateUnmatchedCategory_Call struct {
+	*mock.Call
+}
+
+// UpdateUnmatchedCategory is a helper method to define mock.On call
+//   - unMatchedID []int32
+//   - catID *int32
+func (_e *MockStorer_Expecter) UpdateUnmatchedCategory(unMatchedID interface{}, catID interface{}) *MockStorer_UpdateUnmatchedCategory_Call {
+	return &MockStorer_UpdateUnmatchedCategory_Call{Call: _e.mock.On("UpdateUnmatchedCategory", unMatchedID, catID)}
+}
+
+func (_c *MockStorer_UpdateUnmatchedCategory_Call) Run(run func(unMatchedID []int32, catID *int32)) *MockStorer_UpdateUnmatchedCategory_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].([]int32), args[1].(*int32))
+	})
+	return _c
+}
+
+func (_c *MockStorer_UpdateUnmatchedCategory_Call) Return(_a0 error) *MockStorer_UpdateUnmatchedCategory_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockStorer_UpdateUnmatchedCategory_Call) RunAndReturn(run func([]int32, *int32) error) *MockStorer_UpdateUnmatchedCategory_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockStorer creates a new instance of MockStorer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockStorer(t interface {
