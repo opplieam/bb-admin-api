@@ -56,6 +56,8 @@ Currently, only `category matching` is available.
 - docker / docker-compose
 - minikube
 - kubectl / kustomize
+- helm
+- kubeseal
 #### Database tools
 - CLI go [migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate)
 - CLI [jet-db](https://github.com/go-jet/jet?tab=readme-ov-file#installation)
