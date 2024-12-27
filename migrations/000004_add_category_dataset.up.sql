@@ -13,5 +13,3 @@ CREATE TABLE IF NOT EXISTS "category_dataset" (
     "version" varchar NOT NULL,
     "label" varchar NOT NULL
 );
-
-ALTER TABLE "category_dataset" ADD CONSTRAINT unique_cat_dataset UNIQUE NULLS NOT DISTINCT  (l1_in, l2_in, l3_in, l4_in, l5_in, l6_in, l7_in, l8_in);
